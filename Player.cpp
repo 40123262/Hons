@@ -3,14 +3,20 @@
 using namespace sf;
 using namespace std;
 
+
 Player::Player() 
 {
 alive = true;
+
 defending = false;
 setTexture(player_spritesheet);
 setTextureRect(_sprite);
 frame = 0;
 setOrigin({ 32.0f, 32.0f });
+text_time_alive.setFont(font);
+text_time_alive.setCharacterSize(15.0f);
+text_kills.setFont(font);
+text_kills.setCharacterSize(15.0f);
 
 walkingAnimationDown.push_back(sf::IntRect(0, 128, 64, 64));
 walkingAnimationDown.push_back(sf::IntRect(64, 128, 64, 64));
@@ -138,6 +144,10 @@ Player::Player(IntRect ir) : Sprite()
 	setTexture(player_spritesheet);
 	setTextureRect(_sprite);
 	frame = 0;
+	text_time_alive.setFont(font);
+	text_time_alive.setCharacterSize(15.0f);
+	text_kills.setFont(font);
+	text_kills.setCharacterSize(15.0f);
 	setOrigin({ 32.0f, 32.0f });
 	
 	walkingAnimationDown.push_back(sf::IntRect(0, 128, 64, 64));
@@ -257,46 +267,120 @@ bool Player::isAlive() const
 {
 	return alive;
 }
+bool Player::isHUD() const
+{
+	return show_hud;
+}
 bool Player::isDefending() const
 {
 	return defending;
 }
 void Player::Die()
 {
-	setTextureRect({128,32,32,32});
 	alive = false;
 }
 void Player::getHit(float x)
 {
 	health -= x;
+	damage_taken += x;
+	idle_time = 0.0f;
 }
 void Player::Push(float x, float y)
 {
 	Push(x, y, true);
 }
+void Player::parry()
+{
+	defendDelay = 2.0f;
+}
 void Player::Push(float x, float y, bool f)
 {
 	pushed = true;
-	push_x = 2.0f*x;
-	push_y = 2.0f*y;
+	push_x = 10.0f*x;
+	push_y = 10.0f*y;
 	pushTimer = 0.1f;
 	if(f)
 		setColor(sf::Color::Red);
 	else
+	{
+		
 		setColor(sf::Color::Yellow);
+	}
+}
+void Player::renderHUD(sf::RenderWindow &window)
+{
+	if (show_hud)
+	{
+		window.draw(text_time_alive);
+		window.draw(text_kills);
+	}
+}
+void Player::Reset()
+{
+	alive = true;
+	pushed = false;
+	push_x = 0;
+	push_y = 0;
+	health = 100;
+	t_idle = 0.0f;
+	int kills = 0;
+	isMoving = false;
+	setColor(Color::White);
+	//and the fitness
+	setPosition(start_positon);
+	defending = false;
+	isAttacking = false;
+	animation_incomplete = false;
+	time_alive = 0.0f;
+	
+}
+void Player::Reset(Vector2f pos)
+{
+	alive = true;
+	pushed = false;
+	push_x = 0;
+	push_y = 0;
+	health = 100;
+	t_idle = 0.0f;
+	int kills = 0;
+	isMoving = false;
+	setColor(Color::White);
+	//and the fitness
+	setPosition(pos);
+	defending = false;
+	isAttacking = false;
+	animation_incomplete = false;
+	time_alive = 0.0f;
+
+}
+bool Player::validMove(const sf::Vector2f &pos) {
+	int tile = LevelSystem::getTileAt(pos);
+	bool canWalk = (tile != ls::WALL);
+	return canWalk;
 }
 void Player::Update(const float &dt)
 {
+	if (show_hud)
+	{
+		text_time_alive.setPosition(getPosition() - getOrigin() + Vector2f(0, -40.0f));
+		text_kills.setPosition(getPosition() - getOrigin() + Vector2f(0, -20.0f));
+		text_time_alive.setString("Time: " + std::to_string(time_alive));
+		text_kills.setString("Kills:" + std::to_string(kills));
+	}
 	if (alive)
 	{
+		time_alive += dt;
 		if (health <= 0)
 		{
 			Die();
 		}
 		if (pushed)
 		{
-			pushTimer -= dt;
-			move(push_x, push_y);
+			pushTimer -= 1.0f/90.0f;
+			if (validMove(getPosition() + Vector2f(push_x, push_y)))
+			{
+				move(push_x, push_y);
+			}
 
 		}
 		if (pushed && pushTimer <= 0)

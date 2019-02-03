@@ -10,24 +10,35 @@ float Invader::speed = 50.0f;
 
 Invader::Invader() : Player() {};
 
-Invader::Invader(IntRect ir, Vector2f pos) : Player(ir)
+Invader::Invader(Vector2f pos)
 {
 	alive = true;
 	setOrigin(32, 32);
 	setPosition(pos);
+	start_positon = pos;
+}
+Invader::Invader(Vector2f pos, Player* tar)
+{
+	alive = true;
+	setOrigin(32, 32);
+	setPosition(pos);
+	target = tar;
+	start_positon = pos;
 }
 
 void Invader::Update(const float &dt)
 {
-	
+	Player::Update(dt);
+	if (t_idle > 15.0f)
+		Die();
 	if (alive)
 	{
 		fireTime -= dt;
-		Player::Update(dt);
+		t_idle += dt;
 		isMoving = false;
 
-		Vector2f vec = (players[0]->getPosition() - players[0]->getOrigin()) - (getPosition() - getOrigin());
-		if (length((players[0]->getPosition() - players[0]->getOrigin()) - (getPosition() - getOrigin())) >= 32.0f)
+		Vector2f vec = (target->getPosition() - target->getOrigin()) - (getPosition() - getOrigin());
+		if (length((target->getPosition() - target->getOrigin()) - (getPosition() - getOrigin())) >= 32.0f)
 		{
 			isMoving = true;
 			if (vec.x >= 0 && vec.y >= 0)
@@ -90,29 +101,57 @@ void Invader::Update(const float &dt)
 					face_y = 1.0f;
 				}
 			}
-			move(90.0f*dt*normalize(players[0]->getPosition() - getPosition()));
+			if (validMove(getPosition() + 100.0f*dt*normalize(target->getPosition() - getPosition())))
+			{
+				if(target->isAlive())
+				move(100.0f*dt*normalize(target->getPosition() - getPosition()));
+			}
 		}
 		else
 		{
 			if (fireTime <= 0.0f)
 			{
-				for (auto p : players)
+				for (auto p : m_vecPlayers)
 				{
-					if (p == this)
-						continue;
+					if(p->isAlive())
 					if (length((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()) - Vector2f(32.0f*face_x, 32.0f*face_y)) <= 50.0f)
 					{
 						if (!p->isDefending())
 						{
-							std::cerr << "HIT!" << std::endl;
+							//std::cerr << "HIT!" << std::endl;
 							Vector2f push = normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
-							p->Push(push.x, push.y);
+							if(validMove(p->getPosition() + Vector2f(push.x, push.y)))
+							{ 
+								p->Push(push.x, push.y);
+							}
+							else
+							{
+								p->Push(0, 0);
+							}
+							t_idle = 0;
 							p->getHit(20.0f);
 						}
 						else
 						{
-							Vector2f push = normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
-							Push(-push.x, -push.y, false);
+							Vector2f push = 0.5f *normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
+							if (validMove(getPosition() - Vector2f(push.x, push.y)))
+							{
+								Push(-push.x, -push.y, false);
+							}
+							else
+							{
+								Push(0, 0, false);
+							}
+							if (validMove(p->getPosition() + Vector2f(push.x, push.y)))
+							{
+								p->Push(push.x, push.y, false);
+							}
+							else
+							{
+								Push(0, 0, false);
+							}
+							t_idle = 0;
+							p->parry();
 						}
 
 					}
@@ -122,12 +161,9 @@ void Invader::Update(const float &dt)
 			}
 		}
 	}
-	else
-	{
-		destructionDelay -= dt;
-	}
-	if (destructionDelay <= 0.0f)
-		setPosition({ -100,-100 });
+	
+	
+	
 		
 	
 	

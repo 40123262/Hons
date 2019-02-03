@@ -7,9 +7,10 @@ using namespace sf;
 HumanPlayer::HumanPlayer()
 {
 	alive = true;
+	show_hud = true;
 	setTexture(player_spritesheet);
 	setTextureRect({ 168, 23, 23, 26 });
-	setPosition({gameWidth/2, gameHeight-40});
+	setPosition({gameWidth/2, gameHeight/2});
 }
 bool HumanPlayer::isPlayer()
 {
@@ -64,8 +65,7 @@ void HumanPlayer::Update(const float &dt)
 		if (fireTime <= 0.0f && Keyboard::isKeyPressed(Keyboard::Space))
 		{
 			
-		//	Bullet::Fire(getPosition(), false);
-			for (auto p : players)
+			for (auto p : m_vecEnemies)
 			{
 				if (p == this)
 					continue;
@@ -77,11 +77,14 @@ void HumanPlayer::Update(const float &dt)
 						Vector2f push = normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
 						p->Push(push.x, push.y);
 						p->getHit(20.0f);
+						if (p->getHealth() <= 0)
+							addKill();
 					}
 					else
 					{
-						Vector2f push = normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
+						Vector2f push = 0.5f*normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
 						Push(-push.x, -push.y, false);
+						p->Push(push.x, push.y, false);
 					}
 					
 				}

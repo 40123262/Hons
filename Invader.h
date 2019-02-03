@@ -8,7 +8,10 @@ class Invader : public Player
 public:
 	static bool direction;
 	static float speed;
-	Invader(IntRect ir, Vector2f pos);
+	Player* target;
+	Invader( Vector2f pos);
+	
+	Invader(Vector2f pos, Player* tar);
 	Invader();
 	void Update(const float &dt) override;
 	~Invader() = default;

@@ -1,18 +1,25 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "levelsystem.h"
 
 class Player : public sf::Sprite
 {
 protected:
+	sf::Text text_time_alive;
+	sf::Text text_kills;
 	sf::IntRect _sprite;
 	bool alive = true;
+	bool show_hud = false;
 	Player();
-
+	int kills = 0;
+	float time_alive = 0.0f;
+	float t_idle = 0.0f;
 	/////////////////////////////ANIMATION AND SPRITES
 	bool isMoving = false;
 	bool pushed = false;
 	bool defending = false;
 	float pushTimer = 0.1f;
+	sf::Vector2f start_positon;
 	bool isAttacking = false;
 	bool animation_incomplete = false;
 //	std::shared_ptr<sf::Sprite> _sprite;
@@ -22,6 +29,9 @@ protected:
 	float push_y = 0;
 	float face_y = 0;
 	float fireTime = 0.0f;
+	float defendDelay = 0.0f;
+	float damage_taken = 0;
+	float damage_done = 0;
 	float health = 100;
 	int frame = 0; //Current frame of player/npc animation (goes from 0 to 3)
 	const float AnimationDelay = 0.05f; //delay between frames of animation
@@ -39,14 +49,24 @@ protected:
 	std::vector<sf::IntRect> defendingAnimationRight;
 	std::vector<sf::IntRect> defendingAnimationLeft;
 public:
+	bool validMove(const sf::Vector2f &pos);
+	int getTime() { return time_alive; }
+	int getHealth() { return health; }
+	int getKills() {return kills;}
+	void addKill() {kills++;}
+	void Reset();
+	void Reset(sf::Vector2f pos);
 	float destructionDelay = 0.5f;
 	bool isAlive() const;
+	bool isHUD() const;
 	virtual void Die();
 	virtual bool isPlayer();
 	void getHit(float x);
 	void Push(float x, float y);
 	void Push(float x, float y, bool f);
+	void parry();
 	bool isDefending() const;
+	void renderHUD(sf::RenderWindow &window);
 	explicit Player(sf::IntRect ir);
 
 	virtual ~Player() = 0;
