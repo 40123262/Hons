@@ -55,9 +55,11 @@ public:
 
   //amount of sensors
   static int    iNumSensors;
+  static int  iNumColSensors;
 
   //range of sensors
   static double dSensorRange;
+  static double dColSensorRange;
 
   //distance 0 < d < 1 for collision detection. The smaller the 
   //value is the closer the sweeper has to be to an object.
@@ -186,7 +188,7 @@ public:
 
     dCollisionDist = (double)(iSweeperScale+1)/dSensorRange;
 
-    iNumInputs  = (iNumSensors * 2);
+    iNumInputs  = (iNumSensors + iNumColSensors + 2);
     iNumOutputs = 6;
 
     return true;

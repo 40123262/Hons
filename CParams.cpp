@@ -13,7 +13,10 @@ double CParams::dBias                     = -1;
 double CParams::dMaxTurnRate              = 0;
 int CParams::iSweeperScale                = 0;
 int CParams::iNumSensors                  = 5;
+int CParams::iNumColSensors = 4;
 double CParams::dSensorRange              = 0;
+double CParams::dColSensorRange			  = 40;
+
 int CParams::iPopSize                     = 1;
 int CParams::iNumTicks                    = 500;
 double CParams::dCollisionDist            = 0;
@@ -61,7 +64,7 @@ bool CParams::LoadInParameters(char* szFileName)
   }
 
   //load in from the file
-  char ParamDescription[40];
+  char ParamDescription[42];
 
   grab >> ParamDescription;
   grab >> iFramesPerSecond;
@@ -117,6 +120,10 @@ bool CParams::LoadInParameters(char* szFileName)
   grab >>dCrossoverRate;
   grab >> ParamDescription;
   grab >> iMaxNumberOfSpecies;
+  grab >> ParamDescription;
+  grab >> iNumColSensors;
+  grab >> ParamDescription;
+  grab >> dColSensorRange;
 
 
   return true;

@@ -129,7 +129,7 @@ void Render(RenderWindow &window)
 
 int main()
 {
-	FreeConsole();
+	//FreeConsole();
 	camera.setCenter(cam_pos); //in constructor
 	camera.setSize(gameWidth, gameHeight); //in constructor
 	RenderWindow window(VideoMode(gameWidth, gameHeight), "NEAT", sf::Style::None);

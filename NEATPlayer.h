@@ -29,10 +29,14 @@ protected:
 	//to store end vertices of sensor segments
 	vector<SPoint>  m_Sensors;
 	vector<SPoint>  m_tranSensors;
+
+	vector<SPoint>  m_CollSensors;
+	vector<SPoint>  m_transCollSensors;
 	float t_idle = 0.0f;
 	//this keeps a record of how far down the sensor segment
 //a 'hit' has occurred.
 	vector<double>  m_vecdSensors;
+	vector<bool>  m_vecCollSensors;
 
 	//the end points of the sensors check their coordinate
 	//cell to see how many times the sweeper has visited it.
@@ -40,6 +44,10 @@ protected:
 	void      CreateSensors(vector<SPoint> &sensors,
 		int            NumSensors,
 		double         range);
+	void      CreateColSensors(vector<SPoint> &sensors,
+		int            NumSensors,
+		double         range);
+
 
 	int       CheckForHit(vector<SVector2D> &objects, double size);
 
@@ -70,8 +78,10 @@ public:
 
 
 	vector<SPoint>&   Sensors() { return m_tranSensors; }
+	vector<SPoint>&   ColSensors() { return m_transCollSensors; }
 
 	vector<double>&   SensorReadings() { return m_vecdSensors; }
+	vector<bool>&   ColSensorReadings() { return m_vecCollSensors; }
 
 
 	vector<double>    MemoryReadings() { return m_vecFeelers; }

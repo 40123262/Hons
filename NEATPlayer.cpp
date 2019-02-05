@@ -13,7 +13,7 @@ NEATPlayer::NEATPlayer() : m_dFitness(0), m_up(0), m_down(0), m_right(0), m_left
 	setTextureRect({ 168, 23, 23, 26 });
 	
 	CreateSensors(m_Sensors, CParams::iNumSensors, CParams::dSensorRange);
-
+	CreateColSensors(m_CollSensors, CParams::iNumColSensors, CParams::dColSensorRange);
 	m_MemoryMap.Init(CParams::WindowWidth,
 		CParams::WindowHeight);
 }
@@ -25,7 +25,7 @@ void NEATPlayer::CreateSensors(vector<SPoint> &sensors,
 	//make sure vector of sensors is empty before proceeding
 	sensors.clear();
 
-	double SegmentAngle = 100 / (NumSensors );
+	double SegmentAngle = 2*CParams::dPi / (NumSensors);
 
 	//going clockwise from 90deg left of position calculate the fan of
 	//points radiating out (not including the origin)
@@ -42,6 +42,31 @@ void NEATPlayer::CreateSensors(vector<SPoint> &sensors,
 		
 	}//next segment
 	
+}
+void NEATPlayer::CreateColSensors(vector<SPoint> &sensors,
+	int            NumSensors,
+	double         range)
+{
+	//make sure vector of sensors is empty before proceeding
+	sensors.clear();
+
+	double SegmentAngle = 2 * CParams::dPi / (NumSensors);
+
+	//going clockwise from 90deg left of position calculate the fan of
+	//points radiating out (not including the origin)
+	for (int i = 0; i < CParams::iNumColSensors; i++)
+	{
+		//calculate vertex position
+		SPoint point;
+
+		point.x = -sin(i * SegmentAngle - CParams::dHalfPi) * range;
+
+		point.y = cos(i * SegmentAngle - CParams::dHalfPi) * range;
+
+		sensors.push_back(point);
+
+	}//next segment
+
 }
 bool NEATPlayer::isPlayer()
 {
@@ -84,13 +109,20 @@ bool NEATPlayer::NN_Update(const float &dt)
 		Die();
 	//grab sensor readings
 	TestSensors();
-
 	for (int sr = 0; sr < m_vecdSensors.size(); ++sr)
 	{
 		inputs.push_back(m_vecdSensors[sr]);
+	//	inputs.push_back(m_vecFeelers[sr]);
 
-		inputs.push_back(m_vecFeelers[sr]);
 	}
+	for (int sr = 0; sr < m_vecCollSensors.size(); ++sr)
+	{
+		inputs.push_back(m_vecCollSensors[sr]);
+
+	}
+	inputs.push_back(health/max_health);
+	inputs.push_back(facing/4.0f);
+	
 
 
 	//update the brain and get feedback
@@ -258,32 +290,51 @@ void NEATPlayer::TestSensors()
 
 	m_tranSensors = m_Sensors;
 
-	WorldTransform(m_tranSensors, 1);  //scale is 1
+	m_transCollSensors = m_CollSensors;
 
+	WorldTransform(m_tranSensors, 1);  //scale is 1
+	WorldTransform(m_transCollSensors, 1);  //scale is 1
 	//flush the sensors
 	m_vecdSensors.clear();
+	m_vecCollSensors.clear();
 	m_vecFeelers.clear();
 
 	//now to check each sensor against the objects in the world
-	for (int sr = 0; sr < m_Sensors.size(); ++sr)
+	for (int sr = 0; sr < m_tranSensors.size(); ++sr)
 	{
 		bool bHit = false;
 
 		double dist = 0;
 
-		for (int seg = 0; seg < m_vecEnemies.size(); seg ++)
+		for (int seg = 0; seg < m_vecEnemies.size(); seg++)
 		{
 			if (LineIntersection2D(SPoint(getPosition().x, getPosition().y),
-				SPoint(getPosition().x+ m_Sensors[sr].x, getPosition().y+ m_Sensors[sr].y),
-				SPoint(m_vecEnemies[seg]->getPosition().x-20.0f, m_vecEnemies[seg]->getPosition().y-20.0f),
-				SPoint(m_vecEnemies[seg]->getPosition().x+20.0f, m_vecEnemies[seg]->getPosition().y + 20.0f),
-				dist) ||
+				SPoint(+ m_tranSensors[sr].x,m_tranSensors[sr].y),
+				SPoint(m_vecEnemies[seg]->getPosition().x- 16.0f, m_vecEnemies[seg]->getPosition().y+16.0f ),
+				SPoint(m_vecEnemies[seg]->getPosition().x + 16.0f, m_vecEnemies[seg]->getPosition().y + 16.0f),
+				dist) 
+				||
 				LineIntersection2D(SPoint(getPosition().x, getPosition().y),
-					SPoint(getPosition().x + m_Sensors[sr].x, getPosition().y + m_Sensors[sr].y),
-					SPoint(m_vecEnemies[seg]->getPosition().x + 20.0f, m_vecEnemies[seg]->getPosition().y - 20.0f),
-					SPoint(m_vecEnemies[seg]->getPosition().x - 20.0f, m_vecEnemies[seg]->getPosition().y + 20.0f),
-					dist))
+				SPoint(+m_tranSensors[sr].x, m_tranSensors[sr].y),
+				SPoint(m_vecEnemies[seg]->getPosition().x - 16.0f, m_vecEnemies[seg]->getPosition().y - 16.0f),
+				SPoint(m_vecEnemies[seg]->getPosition().x + 16.0f, m_vecEnemies[seg]->getPosition().y + 16.0f),
+				dist)
+				||
+				LineIntersection2D(SPoint(getPosition().x, getPosition().y),
+				SPoint(m_tranSensors[sr].x,m_tranSensors[sr].y),
+				SPoint(m_vecEnemies[seg]->getPosition().x + 16.0f , m_vecEnemies[seg]->getPosition().y  - 16.0f),
+				SPoint(m_vecEnemies[seg]->getPosition().x + 16.0f, m_vecEnemies[seg]->getPosition().y  + 16.0f),
+				dist)
+				||
+				LineIntersection2D(SPoint(getPosition().x, getPosition().y),
+				SPoint(m_tranSensors[sr].x, m_tranSensors[sr].y),
+				SPoint(m_vecEnemies[seg]->getPosition().x - 16.0f, m_vecEnemies[seg]->getPosition().y - 16.0f),
+				SPoint(m_vecEnemies[seg]->getPosition().x - 16.0f, m_vecEnemies[seg]->getPosition().y + 16.0f),
+				dist)
+				)
+			
 			{
+
 				bHit = true;
 				break;
 			}
@@ -294,12 +345,11 @@ void NEATPlayer::TestSensors()
 			m_vecdSensors.push_back(dist);
 
 			//implement very simple collision detection
-			if (dist < CParams::dCollisionDist)
+			//if (dist < CParams::dCollisionDist)
 			{
-				m_bCollided = true;
+				
 			}
 		}
-
 		else
 		{
 			m_vecdSensors.push_back(-1);
@@ -307,6 +357,7 @@ void NEATPlayer::TestSensors()
 
 		//check how many times the minesweeper has visited the cell
 		//at the current position
+	
 		int HowOften = m_MemoryMap.TicksLingered(m_tranSensors[sr].x,
 			m_tranSensors[sr].y);
 
@@ -357,6 +408,23 @@ void NEATPlayer::TestSensors()
 		}
 
 		m_vecFeelers.push_back(1);
+		for (int sr = 0; sr < m_tranSensors.size(); ++sr)
+		{
 
+		}
 	}//next sensor
+	for (int sr = 0; sr < m_transCollSensors.size(); ++sr)
+	{
+		if (validMove(sf::Vector2f(m_transCollSensors[sr].x, m_transCollSensors[sr].y)))
+		{
+			m_vecCollSensors.push_back(true);
+			m_bCollided = true;
+		}
+		else
+		{ 
+			m_vecCollSensors.push_back(false);
+		}
+	}
+	
+	
 }

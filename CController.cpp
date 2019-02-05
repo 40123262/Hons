@@ -429,28 +429,33 @@ void CController::RenderSensors(sf::RenderWindow &window)
     {
       //grab each sweepers sensor data
       vector<SPoint> tranSensors    = m_vecPlayers[i]->Sensors();
+	  vector<SPoint> tranColSensors = m_vecPlayers[i]->ColSensors();
       vector<double> SensorReadings = m_vecPlayers[i]->SensorReadings();
+	  vector<bool> ColSensorReadings = m_vecPlayers[i]->ColSensorReadings();
       vector<double> MemoryReadings = m_vecPlayers[i]->MemoryReadings();
 
-
+	  
       for (int sr=0; sr<tranSensors.size(); ++sr)
       {
-        if (SensorReadings[sr] > 0)
+       if (SensorReadings[sr] > 0)
         {
-			col = sf::Color::Red;
+			col = sf::Color(255.0f, 255.0f*SensorReadings[sr],0.0f,255.0f);
         }
+	   else
+	   {
+		   col = sf::Color(255.0f, 255.0f, 0.0f, 255.0f);
+	   }
 
-        else
-        {
-			col = sf::Color::Yellow;
-        }
+       
         
         //make sure we clip the drawing of the sensors or we will get
         //unwanted artifacts appearing
+		sf::Vertex line[2];
+		sf::RectangleShape rect;
         if (!((fabs(m_vecPlayers[i]->getPosition().x - tranSensors[sr].x) >
-              (CParams::dSensorRange+1))||
+              (CParams::dSensorRange+50))||
               (fabs(m_vecPlayers[i]->getPosition().y - tranSensors[sr].y) >
-              (CParams::dSensorRange+1))))
+              (CParams::dSensorRange+50))))
         {
         
     
@@ -460,13 +465,13 @@ void CController::RenderSensors(sf::RenderWindow &window)
 			  sf::Vertex(sf::Vector2f((int)tranSensors[sr].x, (int)tranSensors[sr].y))
 		  };
 
-		  window.draw(line, 2, sf::Lines);
+		  
           //render the cell sensors
-		  sf::RectangleShape rect;
+		  
 		  rect.setFillColor(col);
 		  rect.setPosition(Vector2f(tranSensors[sr].x, tranSensors[sr].y));
 		  rect.setSize(Vector2f(15.0f,15.0f));
-          
+		  window.draw(line, 2, sf::Lines);
 		  window.draw(rect);
           if (MemoryReadings[sr] < 0)
           {
@@ -480,7 +485,47 @@ void CController::RenderSensors(sf::RenderWindow &window)
           }
           
         }
+		
       }
+	  for (int sr = 0; sr < tranColSensors.size(); ++sr)
+	  {
+		  if (ColSensorReadings[sr] == true)
+		  {
+			  col = sf::Color(0.0f, 255.0f, 0.0f, 255.0f);
+		  }
+
+		  else
+		  {
+			  col = sf::Color(0.0f, 127.5f, 127.5f,255.0f);
+		  }
+
+		  //make sure we clip the drawing of the sensors or we will get
+		  //unwanted artifacts appearing
+		  if (!((fabs(m_vecPlayers[i]->getPosition().x - tranColSensors[sr].x) >
+			  (CParams::dSensorRange/3.0f + 1)) ||
+			  (fabs(m_vecPlayers[i]->getPosition().y - tranColSensors[sr].y) >
+			  (CParams::dSensorRange/3.0f + 1))))
+		  {
+
+
+			  sf::Vertex line[] =
+			  {
+				  sf::Vertex(sf::Vector2f(m_vecPlayers[i]->getPosition().x, m_vecPlayers[i]->getPosition().y)),
+				  sf::Vertex(sf::Vector2f((int)tranColSensors[sr].x, (int)tranColSensors[sr].y))
+			  };
+
+			  window.draw(line, 2, sf::Lines);
+			  //render the cell sensors
+			  sf::RectangleShape rect;
+			  rect.setFillColor(col);
+			  rect.setPosition(Vector2f(tranColSensors[sr].x, tranColSensors[sr].y));
+			  rect.setSize(Vector2f(10.0f, 10.0f));
+
+			  window.draw(rect);
+			  
+
+		  }
+	  }
     }   
 }
 

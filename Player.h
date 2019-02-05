@@ -33,6 +33,7 @@ protected:
 	float damage_taken = 0;
 	float damage_done = 0;
 	float health = 100;
+	float max_health = 100;
 	int frame = 0; //Current frame of player/npc animation (goes from 0 to 3)
 	const float AnimationDelay = 0.05f; //delay between frames of animation
 	float AnimationCounter = 0.15f; //used as a count-down between frames, then set to AnimationDelay when frame changes
