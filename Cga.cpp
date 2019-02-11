@@ -152,14 +152,14 @@ vector<CNeuralNet*> Cga::Epoch(const vector<double> &FitnessScores)
   
 
   /* uncomment the following if you want to output the species info to a filename */
-  //SpeciesDump("dbg_SpeciesDump.txt");
+  SpeciesDump("dbg_SpeciesDump.txt");
 
   /* uncomment the following if you want to output the innovation info to a filename */
-  //m_pInnovation->Write("dbg_Innovations.txt", m_iGeneration);
+  m_pInnovation->Write("dbg_Innovations.txt", m_iGeneration);
 
   /* uncomment the following if you want to output the best genome this generation
      to a filename */
-  //WriteGenome("dbg_BestGenome.txt", m_iFittestGenome);
+  WriteGenome("dbg_BestGenome.txt", m_iFittestGenome);
 
 
 

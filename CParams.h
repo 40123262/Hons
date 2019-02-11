@@ -148,6 +148,9 @@ public:
   //by this much
   static double dOldAgePenalty;
 
+  static float fSpeedUp;
+
+  static bool bRender;
 
   
   //----------------------------------------------------------------------

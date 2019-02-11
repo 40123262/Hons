@@ -33,6 +33,7 @@ protected:
 	vector<SPoint>  m_CollSensors;
 	vector<SPoint>  m_transCollSensors;
 	float t_idle = 0.0f;
+	float f_last_fitness = 0.0f;
 	//this keeps a record of how far down the sensor segment
 //a 'hit' has occurred.
 	vector<double>  m_vecdSensors;
@@ -54,11 +55,14 @@ protected:
 	void      TestSensors();
 
 	void      TestRange();
+	
+	
 
 public:
 
 	NEATPlayer();
 	void Reset();
+	
 	void      EndOfRunCalculations();
 	void setStart(sf::Vector2f pos) { start_positon = pos; setPosition(pos); }
 	void      RenderStats(HDC surface);
@@ -67,8 +71,11 @@ public:
 	{
 		m_pItsBrain->DrawNet(surface, cxLeft, cxRight, cyTop, cyBot);
 	}
+	void setBest();
+	void setNormal();
+	
 	//float getFitness() { return time_alive + (kills*50.0f) - damage_taken + damage_done; };
-	float getFitness() { return kills; };
+	float getFitness() { return (kills * 1000.0f + distance_walked) / 1000.0f; }
 	void Die() override;
 	void Update(const float &dt) override;
 	bool NN_Update(const float &dt);

@@ -2,6 +2,7 @@
 #include "Game.h"
 #include <iostream>
 #include "maths.h"
+#include "CParams.h"
 
 using namespace sf;
 int chosen_output_id;
@@ -84,7 +85,7 @@ void NEATPlayer::Die()
 void NEATPlayer::Reset()
 {
 	//reset the sweepers positions
-	setColor(Color::White);
+	setColor(default_color);
 	//and the fitness
 	setPosition(start_positon);
 	m_dFitness = 0;
@@ -92,6 +93,7 @@ void NEATPlayer::Reset()
 	t_idle = 0.0f;
 	damage_taken = 0;
 	damage_done = 0;
+	distance_walked = 0.0f;
 	alive = true;
 	kills = 0;
 	time_alive = 0;
@@ -100,12 +102,22 @@ void NEATPlayer::Reset()
 	m_MemoryMap.Reset();
 
 }
+void NEATPlayer::setNormal()
+{
+	is_best = false;
+	default_color = sf::Color::White;
+}
+void NEATPlayer::setBest()
+{
+	is_best = true;
+	default_color = sf::Color::Magenta;
+}
 bool NEATPlayer::NN_Update(const float &dt)
 {
 	//this will store all the inputs for the NN
 	vector<double> inputs;
-	t_idle += dt;
-	if (t_idle > 45.0f)
+	t_idle += dt ;
+	if (t_idle > 25.0f)
 		Die();
 	//grab sensor readings
 	TestSensors();
@@ -120,8 +132,8 @@ bool NEATPlayer::NN_Update(const float &dt)
 		inputs.push_back(m_vecCollSensors[sr]);
 
 	}
-	inputs.push_back(health/max_health);
-	inputs.push_back(facing/4.0f);
+	inputs.push_back((2.0f*health/max_health)-1.0f);
+	inputs.push_back((facing/4.0f));
 	
 
 
@@ -134,12 +146,6 @@ bool NEATPlayer::NN_Update(const float &dt)
 	{
 		return false;
 	}
-	m_up = output[0];
-	m_down = output[1];
-	m_left = output[2];
-	m_right = output[3];
-	m_attack = output[4];
-	m_defend = output[5];
 	chosen_output_id = -1;
 	double min_o = -100.0f;
 	for (int i = 0; i < output.size(); i++)
@@ -156,12 +162,18 @@ bool NEATPlayer::NN_Update(const float &dt)
 }
 void NEATPlayer::Update(const float &dt)
 {
-	
+	if (CParams::bRender)
+	if (show_hud && is_best)
+	{
+		text_last_fitness.setPosition(getPosition() - getOrigin() + Vector2f(0, -60.0f));
+		text_last_fitness.setString("Fitness:" + std::to_string(f_last_fitness));
+
+	}
 	if (alive)
 	{
 		Player::Update(dt);
 		//movement
-		fireTime -= dt;
+		fireTime -= dt ;
 		defendDelay -= dt;
 		float direction = 0.0f;
 		isMoving = false;
@@ -171,7 +183,8 @@ void NEATPlayer::Update(const float &dt)
 		{
 			if (validMove(getPosition() + Vector2f(100 * dt, 0)))
 			{
-				move(100 * dt, 0);
+				move(100 * dt , 0);
+				distance_walked += 100 * dt;
 			}
 			facing = 2;
 			face_x = 1.0f;
@@ -182,7 +195,8 @@ void NEATPlayer::Update(const float &dt)
 		{
 			if (validMove(getPosition() + Vector2f(-100 * dt, 0)))
 			{
-				move(-100 * dt, 0);
+				move(-100 * dt , 0);
+				distance_walked += 100 * dt;
 			}
 			facing = 4;
 			face_x = -1.0f;
@@ -194,6 +208,7 @@ void NEATPlayer::Update(const float &dt)
 			if (validMove(getPosition() + Vector2f(0, -100 * dt)))
 			{
 				move(0, -100 * dt);
+				distance_walked += 100 * dt;
 			}
 			facing = 1;
 			face_x = 0.0f;
@@ -205,6 +220,7 @@ void NEATPlayer::Update(const float &dt)
 			 if (validMove(getPosition() + Vector2f(0, 100 * dt)))
 			 {
 				 move(0, 100 * dt);
+				 distance_walked += 100 * dt;
 			 }
 			facing = 3;
 			face_x = 0.0f;
@@ -220,8 +236,7 @@ void NEATPlayer::Update(const float &dt)
 		if (chosen_output_id == 4)
 		if(fireTime <= 0.0f)
 		{
-			
-		//	Bullet::Fire(getPosition(), false);
+
 			for (auto p : m_vecEnemies)
 			{
 				if (p == this || !p->isAlive())
@@ -230,7 +245,6 @@ void NEATPlayer::Update(const float &dt)
 				{
 					if (!p->isDefending())
 					{
-						//std::cerr << "HIT!" << std::endl;
 						Vector2f push = normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
 						p->Push(push.x, push.y);
 						p->getHit(20.0f);
@@ -264,7 +278,8 @@ void NEATPlayer::Update(const float &dt)
 void NEATPlayer::EndOfRunCalculations()
 {
 	//m_dFitness += time_alive + (kills*50.0f) - damage_taken + damage_done;
-	m_dFitness += kills;
+	m_dFitness += (kills * 1000.0f + distance_walked) / 1000.0f;
+	f_last_fitness = m_dFitness;
 }
 void NEATPlayer::WorldTransform(vector<SPoint> &sweeper, double scale)
 {

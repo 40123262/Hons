@@ -14,9 +14,14 @@ setTextureRect(_sprite);
 frame = 0;
 setOrigin({ 32.0f, 32.0f });
 text_time_alive.setFont(font);
+text_time_alive.setColor(sf::Color::Red);
 text_time_alive.setCharacterSize(15.0f);
 text_kills.setFont(font);
 text_kills.setCharacterSize(15.0f);
+text_kills.setColor(sf::Color::Red);
+text_last_fitness.setFont(font);
+text_last_fitness.setCharacterSize(15.0f);
+text_last_fitness.setColor(sf::Color::Red);
 
 walkingAnimationDown.push_back(sf::IntRect(0, 128, 64, 64));
 walkingAnimationDown.push_back(sf::IntRect(64, 128, 64, 64));
@@ -148,6 +153,8 @@ Player::Player(IntRect ir) : Sprite()
 	text_time_alive.setCharacterSize(15.0f);
 	text_kills.setFont(font);
 	text_kills.setCharacterSize(15.0f);
+	text_last_fitness.setFont(font);
+	text_last_fitness.setCharacterSize(15.0f);
 	setOrigin({ 32.0f, 32.0f });
 	
 	walkingAnimationDown.push_back(sf::IntRect(0, 128, 64, 64));
@@ -313,6 +320,8 @@ void Player::renderHUD(sf::RenderWindow &window)
 	{
 		window.draw(text_time_alive);
 		window.draw(text_kills);
+		if(is_best)
+		window.draw(text_last_fitness);
 	}
 }
 void Player::Reset()
@@ -344,7 +353,7 @@ void Player::Reset(Vector2f pos)
 	t_idle = 0.0f;
 	int kills = 0;
 	isMoving = false;
-	setColor(Color::White);
+	setColor(default_color);
 	//and the fitness
 	setPosition(pos);
 	defending = false;
@@ -366,6 +375,7 @@ void Player::Update(const float &dt)
 		text_kills.setPosition(getPosition() - getOrigin() + Vector2f(0, -20.0f));
 		text_time_alive.setString("Time: " + std::to_string(time_alive));
 		text_kills.setString("Kills:" + std::to_string(kills));
+
 	}
 	if (alive)
 	{
@@ -376,7 +386,7 @@ void Player::Update(const float &dt)
 		}
 		if (pushed)
 		{
-			pushTimer -= 1.0f/90.0f;
+			pushTimer -= 1.0f / 90.0f;
 			if (validMove(getPosition() + Vector2f(push_x, push_y)))
 			{
 				move(push_x, push_y);
@@ -387,128 +397,130 @@ void Player::Update(const float &dt)
 		{
 			pushTimer = 0.1f;
 			pushed = false;
-			setColor(sf::Color::White);
+			setColor(default_color);
 		}
 		AnimationCounter -= dt;
 		if (frame >= walkingAnimationUp.size()) frame = 0;
 
-
-		if (!isAttacking)
+		if (CParams::bRender)
 		{
-			if (!defending)
+			if (!isAttacking)
 			{
-				if (!isMoving)
+				if (!defending)
+				{
+					if (!isMoving)
+						frame = 0;
+					if (facing == 1 && AnimationCounter <= 0.0f)
+					{
+
+						setTextureRect(walkingAnimationUp[frame]);
+
+						frame++;
+						AnimationCounter = AnimationDelay;
+					}
+					else if (facing == 2 && AnimationCounter <= 0.0f)
+					{
+
+						setTextureRect(walkingAnimationRight[frame]);
+
+						frame++;
+						AnimationCounter = AnimationDelay;
+					}
+					else if (facing == 3 && AnimationCounter <= 0.0f)
+					{
+
+						setTextureRect(walkingAnimationDown[frame]);
+
+						frame++;
+						AnimationCounter = AnimationDelay;
+					}
+					else if (facing == 4 && AnimationCounter <= 0.0f)
+					{
+
+						setTextureRect(walkingAnimationLeft[frame]);
+
+						frame++;
+						AnimationCounter = AnimationDelay;
+					}
+				}
+				else
+				{
+					if (!isMoving)
+						frame = 0;
+					if (facing == 1 && AnimationCounter <= 0.0f)
+					{
+
+						setTextureRect(defendingAnimationUp[frame]);
+
+						frame++;
+						AnimationCounter = AnimationDelay;
+					}
+					else if (facing == 2 && AnimationCounter <= 0.0f)
+					{
+
+						setTextureRect(defendingAnimationRight[frame]);
+
+						frame++;
+						AnimationCounter = AnimationDelay;
+					}
+					else if (facing == 3 && AnimationCounter <= 0.0f)
+					{
+
+						setTextureRect(defendingAnimationDown[frame]);
+
+						frame++;
+						AnimationCounter = AnimationDelay;
+					}
+					else if (facing == 4 && AnimationCounter <= 0.0f)
+					{
+
+						setTextureRect(defendingAnimationLeft[frame]);
+
+						frame++;
+						AnimationCounter = AnimationDelay;
+					}
+				}
+			}
+			if (isAttacking && animation_incomplete == false)
+			{
+				animation_incomplete = true;
+			}
+			if (animation_incomplete)
+			{
+				if (frame > 5)
+				{
+					animation_incomplete = false;
+					isAttacking = false;
 					frame = 0;
-				if (facing == 1 && AnimationCounter <= 0.0f)
+				}
+				if (facing == 3 && AnimationCounter <= 0.0f)
 				{
 
-					setTextureRect(walkingAnimationUp[frame]);
-
+					setTextureRect(swordAnimationDown[frame]);
 					frame++;
-					AnimationCounter = AnimationDelay;
+					AnimationCounter = 0.04f;
+				}
+				else if (facing == 1 && AnimationCounter <= 0.0f)
+				{
+
+					setTextureRect(swordAnimationUp[frame]);
+					frame++;
+					AnimationCounter = 0.04f;
 				}
 				else if (facing == 2 && AnimationCounter <= 0.0f)
 				{
 
-					setTextureRect(walkingAnimationRight[frame]);
-
+					setTextureRect(swordAnimationRight[frame]);
 					frame++;
-					AnimationCounter = AnimationDelay;
-				}
-				else if (facing == 3 && AnimationCounter <= 0.0f)
-				{
-
-					setTextureRect(walkingAnimationDown[frame]);
-
-					frame++;
-					AnimationCounter = AnimationDelay;
+					AnimationCounter = 0.04f;
 				}
 				else if (facing == 4 && AnimationCounter <= 0.0f)
 				{
 
-					setTextureRect(walkingAnimationLeft[frame]);
-
+					setTextureRect(swordAnimationLeft[frame]);
 					frame++;
-					AnimationCounter = AnimationDelay;
+					AnimationCounter = 0.04f;
 				}
-			}
-			else
-			{
-				if (!isMoving)
-					frame = 0;
-				if (facing == 1 && AnimationCounter <= 0.0f)
-				{
-
-					setTextureRect(defendingAnimationUp[frame]);
-
-					frame++;
-					AnimationCounter = AnimationDelay;
-				}
-				else if (facing == 2 && AnimationCounter <= 0.0f)
-				{
-
-					setTextureRect(defendingAnimationRight[frame]);
-
-					frame++;
-					AnimationCounter = AnimationDelay;
-				}
-				else if (facing == 3 && AnimationCounter <= 0.0f)
-				{
-
-					setTextureRect(defendingAnimationDown[frame]);
-
-					frame++;
-					AnimationCounter = AnimationDelay;
-				}
-				else if (facing == 4 && AnimationCounter <= 0.0f)
-				{
-
-					setTextureRect(defendingAnimationLeft[frame]);
-
-					frame++;
-					AnimationCounter = AnimationDelay;
-				}
-			}
-		}
-		if (isAttacking && animation_incomplete == false)
-		{
-			animation_incomplete = true;
-		}
-		if (animation_incomplete)
-		{
-			if (frame > 5)
-			{
-				animation_incomplete = false;
-				isAttacking = false;
-				frame = 0;
-			}
-			if (facing == 3 && AnimationCounter <= 0.0f)
-			{
-
-				setTextureRect(swordAnimationDown[frame]);
-				frame++;
-				AnimationCounter = 0.04f;
-			}
-			else if (facing == 1 && AnimationCounter <= 0.0f)
-			{
-
-				setTextureRect(swordAnimationUp[frame]);
-				frame++;
-				AnimationCounter = 0.04f;
-			}
-			else if (facing == 2 && AnimationCounter <= 0.0f)
-			{
-
-				setTextureRect(swordAnimationRight[frame]);
-				frame++;
-				AnimationCounter = 0.04f;
-			}
-			else if (facing == 4 && AnimationCounter <= 0.0f)
-			{
-
-				setTextureRect(swordAnimationLeft[frame]);
-				frame++;
-				AnimationCounter = 0.04f;
 			}
 		}
 	}

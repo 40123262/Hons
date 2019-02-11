@@ -30,7 +30,7 @@ int CParams::iYoungBonusAgeThreshhold     = 0;
 double CParams::dSurvivalRate             = 0;
 int CParams::InfoWindowWidth              = 400;
 int CParams::InfoWindowHeight             = 400;
-int CParams::iNumGensAllowedNoImprovement = 0;
+int CParams::iNumGensAllowedNoImprovement = 1;
 int CParams::iMaxPermittedNeurons         = 0;
 double CParams::dChanceAddLink            = 0;
 double CParams::dChanceAddNode            = 0;
@@ -49,6 +49,10 @@ double CParams::dOldAgePenalty            = 0;
 double CParams::dCrossoverRate            = 0;
 int CParams::iMaxNumberOfSpecies          = 0;
 
+bool CParams::bRender                     = 1;
+float CParams::fSpeedUp                     = 1;
+
+
 
 
 //this function loads in the parameters from a given file name. Returns
@@ -64,7 +68,7 @@ bool CParams::LoadInParameters(char* szFileName)
   }
 
   //load in from the file
-  char ParamDescription[42];
+  char ParamDescription[44];
 
   grab >> ParamDescription;
   grab >> iFramesPerSecond;
@@ -124,6 +128,10 @@ bool CParams::LoadInParameters(char* szFileName)
   grab >> iNumColSensors;
   grab >> ParamDescription;
   grab >> dColSensorRange;
+  grab >> ParamDescription;
+  grab >> fSpeedUp;
+  grab >> ParamDescription;
+  grab >> bRender;
 
 
   return true;

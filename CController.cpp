@@ -3,6 +3,7 @@
 
 std::vector<NEATPlayer*> m_vecPlayers;
 std::vector<Player*> m_vecEnemies;
+NEATPlayer* pointer_bestPlayer;
 int spawn_cycle = 0;
 std::vector<sf::Vector2f> new_spawns;
 bool show_sensors = false;
@@ -136,6 +137,18 @@ bool CController::Update(const float &dt)
 		}
 		show_sensors_delay = 0.3f;
 	}
+	if (show_sensors_delay <= 0 && Keyboard::isKeyPressed(Keyboard::Y))
+	{
+		for (auto p : m_vecPlayers)
+		{
+			if (p->isBest())
+			{
+				cam_pos = p->getPosition();
+				break;
+			}
+		}
+		show_sensors_delay = 0.3f;
+	}
 	show_sensors_delay -= dt;
 	if (show_sensors_delay <= 0 && Keyboard::isKeyPressed(Keyboard::B))
 	{
@@ -143,7 +156,7 @@ bool CController::Update(const float &dt)
 		show_sensors_delay = 0.3f;
 	}
 	int left_alive = m_vecPlayers.size();
-	gen.setString("Generation: "+ std::to_string(m_iGenerations) + "                                      Num Species: " + itos(m_pPop->NumSpecies()) +"\nAverage Fitness: " + std::to_string(avg_fit) + "         Best Fitness so far: " + ftos(m_pPop->BestEverFitness()));
+	gen.setString("Generation: "+ std::to_string(m_iGenerations) + "                                      Num Species: " + itos(m_pPop->NumSpecies()) +"\nAverage Fitness: " + std::to_string(avg_fit) + "         Best Fitness so far: " + ftos(m_pPop->BestEverFitness()) + "\nFPS:" + std::to_string((int)(1.0f*CParams::fSpeedUp/dt)));
 	for (auto p : m_vecPlayers)
 	{
 		if (!p->isAlive())
@@ -198,11 +211,21 @@ bool CController::Update(const float &dt)
     //there are many different sorts of penalties the sweepers may incur
     //and each one has a coefficient)
 	avg_fit = 0.0f;
+	float best_fitness = -100.0f;
     for (int swp=0; swp< m_vecPlayers.size(); ++swp)
     {
+
+		m_vecPlayers[swp]->setNormal();
+		float curr_fitness = m_vecPlayers[swp]->getFitness();
 		m_vecPlayers[swp]->EndOfRunCalculations();
-		avg_fit += m_vecPlayers[swp]->getFitness();
+		avg_fit += curr_fitness;
+		if (curr_fitness > best_fitness)
+		{
+			best_fitness = curr_fitness;
+			pointer_bestPlayer = m_vecPlayers[swp];
+		}
     }
+	pointer_bestPlayer->setBest();
 	avg_fit /= m_vecPlayers.size();
 	data_output << std::to_string(m_iGenerations) << ", " <<std::to_string(avg_fit) << ","<< ftos(m_pPop->BestEverFitness()) << endl;
 		//increment the generation counter
@@ -219,6 +242,7 @@ bool CController::Update(const float &dt)
 
 	
 	spawn_cycle++;
+
     for (int i=0; i<m_NumSweepers; ++i)
 		{
 		m_vecPlayers[i]->InsertNewBrain(pBrains[i]);
@@ -235,6 +259,7 @@ bool CController::Update(const float &dt)
     vector<CNeuralNet*> pBestBrains = m_pPop->GetBestPhenotypesFromLastGeneration();
 
     //put them into our record of the best sweepers
+
     for (int i=0; i< m_vecBestPlayers.size(); ++i)
 		{
 		m_vecBestPlayers[i]->InsertNewBrain(pBestBrains[i]);
@@ -278,6 +303,8 @@ void CController::RenderNetworks(HDC &surface)
 }
 void CController::Render(sf::RenderWindow &window)
 {
+	if(CParams::bRender)
+	{ 
 	for (auto s : m_vecEnemies)
 	{
 		if (s->isAlive())
@@ -296,7 +323,9 @@ void CController::Render(sf::RenderWindow &window)
 			
 		}
 	}
+	}
 	window.draw(gen);
+	
 }
 //------------------------------------Render()--------------------------------------
 //

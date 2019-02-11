@@ -1,17 +1,20 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "levelsystem.h"
+#include "CParams.h"
 
 class Player : public sf::Sprite
 {
 protected:
 	sf::Text text_time_alive;
 	sf::Text text_kills;
+	sf::Text text_last_fitness;
 	sf::IntRect _sprite;
 	bool alive = true;
 	bool show_hud = false;
 	Player();
 	int kills = 0;
+	sf::Color default_color = sf::Color::White;
 	float time_alive = 0.0f;
 	float t_idle = 0.0f;
 	/////////////////////////////ANIMATION AND SPRITES
@@ -26,8 +29,10 @@ protected:
 	int facing=3; //direction player/npc is facing 1 - north, then clockwise (1-4)
 	float face_x = 0;
 	float push_x = 0;
+	bool is_best = false;
 	float push_y = 0;
 	float face_y = 0;
+	float distance_walked = 0.0f;
 	float fireTime = 0.0f;
 	float defendDelay = 0.0f;
 	float damage_taken = 0;
@@ -35,7 +40,7 @@ protected:
 	float health = 100;
 	float max_health = 100;
 	int frame = 0; //Current frame of player/npc animation (goes from 0 to 3)
-	const float AnimationDelay = 0.05f; //delay between frames of animation
+	const float AnimationDelay = 0.05f ; //delay between frames of animation
 	float AnimationCounter = 0.15f; //used as a count-down between frames, then set to AnimationDelay when frame changes
 	std::vector<sf::IntRect> walkingAnimationDown;
 	std::vector<sf::IntRect> walkingAnimationUp;
@@ -50,6 +55,7 @@ protected:
 	std::vector<sf::IntRect> defendingAnimationRight;
 	std::vector<sf::IntRect> defendingAnimationLeft;
 public:
+	bool isBest() { return is_best; }
 	bool validMove(const sf::Vector2f &pos);
 	int getTime() { return time_alive; }
 	int getHealth() { return health; }

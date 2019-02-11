@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "maths.h"
 #include <iostream>
+#include "CParams.h"
 using namespace sf;
 
 
@@ -33,8 +34,8 @@ void Invader::Update(const float &dt)
 		Die();
 	if (alive)
 	{
-		fireTime -= dt;
-		t_idle += dt;
+		fireTime -= dt ;
+		t_idle += dt ;
 		isMoving = false;
 
 		Vector2f vec = (target->getPosition() - target->getOrigin()) - (getPosition() - getOrigin());
@@ -104,7 +105,7 @@ void Invader::Update(const float &dt)
 			if (validMove(getPosition() + 100.0f*dt*normalize(target->getPosition() - getPosition())))
 			{
 				if(target->isAlive())
-				move(100.0f*dt*normalize(target->getPosition() - getPosition()));
+				move(100.0f*dt *normalize(target->getPosition() - getPosition()));
 			}
 		}
 		else
