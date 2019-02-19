@@ -5,6 +5,9 @@
 using namespace sf;
 class Invader : public Player
 {
+private:
+	int miss_count = 0;
+	bool hit_landed = false;
 public:
 	static bool direction;
 	static float speed;

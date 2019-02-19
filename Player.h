@@ -55,6 +55,7 @@ protected:
 	std::vector<sf::IntRect> defendingAnimationRight;
 	std::vector<sf::IntRect> defendingAnimationLeft;
 public:
+	bool isPushed() { return pushed; }
 	bool isBest() { return is_best; }
 	bool validMove(const sf::Vector2f &pos);
 	int getTime() { return time_alive; }

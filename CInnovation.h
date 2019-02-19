@@ -140,7 +140,7 @@ public:
 
   //writes all current innovations to a file
   bool        Write(char* szFileName, const int gen);
-
+  bool CreateFromFile(const char* szFileName);
 
   //------------------------------------------------accessor methods
   int   GetNeuronID(int inv)const{return m_vecInnovs[inv].NeuronID;}

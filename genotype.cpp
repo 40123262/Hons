@@ -206,6 +206,7 @@ CNeuralNet* CGenome::CreatePhenotype()
   return m_pPhenotype;
 }
 
+
 //--------------------------- DeletePhenotype ----------------------------
 //
 //------------------------------------------------------------------------
@@ -226,18 +227,21 @@ void CGenome::DeletePhenotype()
 //------------------------------------------------------------------------
 int CGenome::GetElementPos(int neuron_id)
 {  
-  for (int i=0; i<m_vecNeurons.size(); i++)
-	{
-		int d = m_vecNeurons[i].iID;
-    
-    if (m_vecNeurons[i].iID == neuron_id)
-    {
-      return i;
-    }
+	int i = 0;
+    for ( i=0; i<m_vecNeurons.size(); ++i)
+	{		  
+		if (m_vecNeurons[i].iID == neuron_id)
+		{
+			 return i;
+		}
+		
 	}
-
+	
   string s = itos(neuron_id);
-
+  for (i = 0; i < m_vecNeurons.size(); ++i)
+  {
+	  std::cout << m_vecNeurons[i].iID << endl;
+  }
   MessageBox(NULL, "Error in CGenome::GetElementPos", s.c_str(), MB_OK);
 
 	return -1;
@@ -831,6 +835,7 @@ bool CGenome::CreateFromFile(const char* szFileName)
     in >> buffer; in >> SplitX;
     in >> buffer; in >> SplitY;
 
+	
     //create a neuron gene
     SNeuronGene gene((neuron_type)NeuronType,
                      NeuronID,
@@ -838,12 +843,17 @@ bool CGenome::CreateFromFile(const char* szFileName)
                      SplitX,
                      Recurrent,
                      Activation);
+	
 
-    //add it
     m_vecNeurons.push_back(gene);
+
+	
     
   }//grab next neuron
-
+  for (auto a : m_vecNeurons)
+  {
+	  std::cout << "Added Neuron ID: "<< a.iID << endl;
+  }
   //grab the link data and create the link genes
   int NumLinks = 0;
   in >> buffer; in >> NumLinks;
@@ -876,8 +886,11 @@ bool CGenome::CreateFromFile(const char* szFileName)
 
 
   }//next link
-
-   
+  int c = 0;
+  for (auto a : m_vecLinks)
+  {
+	  std::cout << c++ << " From: " << a.FromNeuron << " To: " << a.ToNeuron<< endl;
+  }
   return true;
 }
 
@@ -885,7 +898,7 @@ bool CGenome::CreateFromFile(const char* szFileName)
 //
 //  Writes the genome structure to a stream
 //------------------------------------------------------------------------
-bool CGenome::Write(ostream &stream)
+bool CGenome::Write(ostream &stream, const int gen)
 {
 
   //check the stream before continuing
@@ -915,7 +928,6 @@ bool CGenome::Write(ostream &stream)
 	{
 		stream << *curLink;
 	}
-
   return true;
 
 }

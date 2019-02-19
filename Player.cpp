@@ -303,8 +303,8 @@ void Player::parry()
 void Player::Push(float x, float y, bool f)
 {
 	pushed = true;
-	push_x = 10.0f*x;
-	push_y = 10.0f*y;
+	push_x = 10.0f*x*CParams::fSpeedUp;
+	push_y = 10.0f*y*CParams::fSpeedUp;
 	pushTimer = 0.1f;
 	if(f)
 		setColor(sf::Color::Red);
@@ -334,7 +334,7 @@ void Player::Reset()
 	t_idle = 0.0f;
 	int kills = 0;
 	isMoving = false;
-	setColor(Color::White);
+	setColor(default_color);
 	//and the fitness
 	setPosition(start_positon);
 	defending = false;
@@ -386,7 +386,7 @@ void Player::Update(const float &dt)
 		}
 		if (pushed)
 		{
-			pushTimer -= 1.0f / 90.0f;
+			pushTimer -= 1.0f*CParams::fSpeedUp / 90.0f;
 			if (validMove(getPosition() + Vector2f(push_x, push_y)))
 			{
 				move(push_x, push_y);

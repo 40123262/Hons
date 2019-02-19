@@ -134,7 +134,61 @@ SNeuronGene CInnovation::CreateNeuronFromID(int NeuronID)
   return temp;
 }
 
+bool CInnovation::CreateFromFile(const char* szFileName)
+{
+	ifstream in(szFileName);
 
+	//check for error
+	if (!in)
+	{
+		MessageBox(NULL, "Cannot find innovation file!", "error", MB_OK);
+
+		return false;
+	}
+
+	//clear any current neuron and link genes
+	m_vecInnovs.clear();
+
+	char buffer[100];
+	int  num_innovations;
+	in >> num_innovations;
+	std::cout << num_innovations << endl;
+
+	for (int n = 0; n < num_innovations; ++n);
+	{
+		int    InnovationID, _in, _out, NeuronID, Neuron_type, innovation_type;
+		 
+		double  SplitX, SplitY;
+
+		in >> buffer; in >> InnovationID;
+		in >> buffer; in >> _in;
+		in >> buffer; in >> _out;
+		in >> buffer; in >> NeuronID;
+		in >> buffer; in >> innovation_type;
+		in >> buffer; in >> Neuron_type;
+		in >> buffer; in >> SplitX;
+		in >> buffer; in >> SplitY;
+
+		std::cout << InnovationID << ", " << _in << ", " << _out << ", " << innovation_type << ", " << Neuron_type << ", " << SplitX << ", " << SplitY << "\n";
+		//create a neuron gene
+		
+		innov_type tp;
+		if (innovation_type == 1)
+		{
+			tp = new_neuron;
+		}
+		else
+			tp = new_link;
+
+			//CreateNewInnovation(_in, _out, tp, neuron_type(Neuron_type), SplitX, SplitY);
+		
+		
+
+	}//grab next innovation
+
+
+	return true;
+}
 //--------------------------------- Write --------------------------------
 //
 //  writes the current innovations to a stream
@@ -147,9 +201,7 @@ bool CInnovation::Write(char* szFileName, const int gen)
 
   vector<SInnovation>::iterator curInnov;
 
-  stream<< "\n\n--------------------------------------- Generation: " << gen 
-        <<    " -------------------------------g-------\n";
-	
+  stream << m_vecInnovs.size();
 	for (curInnov = m_vecInnovs.begin(); curInnov != m_vecInnovs.end(); ++curInnov)
 	{
 		stream << "\nInnovationID: " << setw(3) << curInnov->InnovationID
@@ -159,21 +211,20 @@ bool CInnovation::Write(char* szFileName, const int gen)
 
 		if (curInnov->InnovationType == new_link)
     {
-    	stream << "new_link";
+    	stream << 0;
     }
     
 		else
     {
-			stream << "NewNeuron";
+			stream << 1;
     }
 
     stream<<"   NeuronType: " << curInnov->NeuronType;
-	
+	stream << " X: " << curInnov->dSplitX;
+	stream << " Y: " << curInnov->dSplitY;
 	}//next innovation
   
   stream<< "\n\n";
   
 	return true;
 }
-
-

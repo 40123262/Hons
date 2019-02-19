@@ -26,6 +26,7 @@ protected:
 	double			m_dFitness;
 	//if a collision has been detected this flag is set
 	bool            m_bCollided;
+	float delay_up, delay_down, delay_right, delay_left;
 	//to store end vertices of sensor segments
 	vector<SPoint>  m_Sensors;
 	vector<SPoint>  m_tranSensors;
@@ -75,7 +76,7 @@ public:
 	void setNormal();
 	
 	//float getFitness() { return time_alive + (kills*50.0f) - damage_taken + damage_done; };
-	float getFitness() { return (kills * 1000.0f + distance_walked) / 1000.0f; }
+	float getFitness() { return (kills * 100.0f  + (distance_walked))/100.0f; }
 	void Die() override;
 	void Update(const float &dt) override;
 	bool NN_Update(const float &dt);

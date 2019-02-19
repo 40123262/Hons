@@ -106,6 +106,8 @@ public:
 
   //create a neural network from the genome
   CNeuralNet*	        CreatePhenotype();
+  //create a neural network from the genome
+  CNeuralNet*	        RecreatePhenotype();
 
   //delete the neural network
   void                DeletePhenotype();
@@ -141,7 +143,7 @@ public:
 
   void                SortGenes();
 
-  bool                Write(ostream &file);
+  bool                Write(ostream &file, const int gen);
 
   //create a genome from a data file
   bool             CreateFromFile(const char* szFileName);

@@ -19,6 +19,7 @@
 #include "genotype.h"
 #include "CSpecies.h"
 #include "CParams.h"
+#include "Cinnovation.h"
 
 using namespace std;
 
@@ -132,6 +133,11 @@ public:
       int   inputs,
       int   outputs);
 
+  Cga(int   size,
+	  int   inputs,
+	  int   outputs,
+	  bool);
+
 
 	~Cga();
 
@@ -142,6 +148,7 @@ public:
 
 	//iterates through the population and creates the phenotypes
   vector<CNeuralNet*>  CreatePhenotypes();
+  bool  RecreatePhenotypes();
   
   //keeps a record of the n best genomes from the last population.
   //(used to display the best genomes)
@@ -150,6 +157,7 @@ public:
   //renders the best performing species statistics and a visual aid
   //showing the distribution.
   void                 RenderSpeciesInfo(HDC &surface, RECT db);
+  std::vector<std::string>    SpeciesInfo();
 
   //returns a vector of the n best phenotypes from the previous generation
   vector<CNeuralNet*>  GetBestPhenotypesFromLastGeneration();

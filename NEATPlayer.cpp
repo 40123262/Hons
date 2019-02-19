@@ -115,45 +115,48 @@ void NEATPlayer::setBest()
 bool NEATPlayer::NN_Update(const float &dt)
 {
 	//this will store all the inputs for the NN
-	vector<double> inputs;
-	t_idle += dt ;
-	if (t_idle > 25.0f)
-		Die();
-	//grab sensor readings
-	TestSensors();
-	for (int sr = 0; sr < m_vecdSensors.size(); ++sr)
+	if (alive)
 	{
-		inputs.push_back(m_vecdSensors[sr]);
-	//	inputs.push_back(m_vecFeelers[sr]);
-
-	}
-	for (int sr = 0; sr < m_vecCollSensors.size(); ++sr)
-	{
-		inputs.push_back(m_vecCollSensors[sr]);
-
-	}
-	inputs.push_back((2.0f*health/max_health)-1.0f);
-	inputs.push_back((facing/4.0f));
-	
-
-
-	//update the brain and get feedback
-	vector<double> output = m_pItsBrain->Update(inputs, CNeuralNet::active);
-
-	//make sure there were no errors in calculating the 
-	//output
-	if (output.size() < CParams::iNumOutputs)
-	{
-		return false;
-	}
-	chosen_output_id = -1;
-	double min_o = -100.0f;
-	for (int i = 0; i < output.size(); i++)
-	{
-		if (output[i] > min_o)
+		vector<double> inputs;
+		t_idle += dt;
+		if (t_idle > 25.0f)
+			Die();
+		//grab sensor readings
+		TestSensors();
+		for (int sr = 0; sr < m_vecdSensors.size(); ++sr)
 		{
-			chosen_output_id = i;
-			min_o = output[i];
+			inputs.push_back(m_vecdSensors[sr]);
+			//	inputs.push_back(m_vecFeelers[sr]);
+
+		}
+		for (int sr = 0; sr < m_vecCollSensors.size(); ++sr)
+		{
+			inputs.push_back(m_vecCollSensors[sr]);
+
+		}
+		inputs.push_back((2.0f*health / max_health) - 1.0f);
+		inputs.push_back((facing / 4.0f));
+
+
+
+		//update the brain and get feedback
+		vector<double> output = m_pItsBrain->Update(inputs, CNeuralNet::active);
+
+		//make sure there were no errors in calculating the 
+		//output
+		if (output.size() < CParams::iNumOutputs)
+		{
+			return false;
+		}
+		chosen_output_id = -1;
+		double min_o = -100.0f;
+		for (int i = 0; i < output.size(); i++)
+		{
+			if (output[i] > min_o)
+			{
+				chosen_output_id = i;
+				min_o = output[i];
+			}
 		}
 	}
 	Update(dt);
@@ -175,57 +178,80 @@ void NEATPlayer::Update(const float &dt)
 		//movement
 		fireTime -= dt ;
 		defendDelay -= dt;
+		delay_down -= dt;
+		delay_up -= dt;
+		delay_right -= dt;
+		delay_left -= dt;
 		float direction = 0.0f;
 		isMoving = false;
 		defending = false;
 	
-		if (chosen_output_id==3)
+		if (!pushed)
 		{
-			if (validMove(getPosition() + Vector2f(100 * dt, 0)))
+			if (chosen_output_id == 3)
 			{
-				move(100 * dt , 0);
-				distance_walked += 100 * dt;
+				if (validMove(getPosition() + Vector2f(100 * dt, 0)))
+				{
+					move(100 * dt, 0);
+					if(delay_right<=0)
+					distance_walked += 100 * dt;
+				}
+				delay_left = 0.5f;
+				delay_up = 0.5f;
+				delay_down = 0.5f;
+				facing = 2;
+				face_x = 1.0f;
+				face_y = 0.0f;
+				isMoving = true;
 			}
-			facing = 2;
-			face_x = 1.0f;
-			face_y = 0.0f;
-			isMoving = true;
-		}
-		if (chosen_output_id == 2)
-		{
-			if (validMove(getPosition() + Vector2f(-100 * dt, 0)))
+			if (chosen_output_id == 2)
 			{
-				move(-100 * dt , 0);
-				distance_walked += 100 * dt;
+				if (validMove(getPosition() + Vector2f(-100 * dt, 0)))
+				{
+					move(-100 * dt, 0);
+					if(delay_left<=0)
+					distance_walked += 100 * dt;
+				}
+				delay_right = 0.5f;
+				delay_up = 0.5f;
+				delay_down = 0.5f;
+				facing = 4;
+				face_x = -1.0f;
+				face_y = 0.0f;
+				isMoving = true;
 			}
-			facing = 4;
-			face_x = -1.0f;
-			face_y = 0.0f;
-			isMoving = true;
-		}
-		if (chosen_output_id == 0)
-		{
-			if (validMove(getPosition() + Vector2f(0, -100 * dt)))
+			if (chosen_output_id == 0)
 			{
-				move(0, -100 * dt);
-				distance_walked += 100 * dt;
+				if (validMove(getPosition() + Vector2f(0, -100 * dt)))
+				{
+					move(0, -100 * dt);
+					if(delay_up<=0)
+					distance_walked += 100 * dt;
+				}
+				delay_left = 0.5f;
+				delay_right = 0.5f;
+				delay_down = 0.5f;
+				facing = 1;
+				face_x = 0.0f;
+				face_y = -1.0f;
+				isMoving = true;
 			}
-			facing = 1;
-			face_x = 0.0f;
-			face_y = -1.0f;
-			isMoving = true;
-		}
-		 if (chosen_output_id == 1)
-		{
-			 if (validMove(getPosition() + Vector2f(0, 100 * dt)))
-			 {
-				 move(0, 100 * dt);
-				 distance_walked += 100 * dt;
-			 }
-			facing = 3;
-			face_x = 0.0f;
-			face_y = 1.0f;
-			isMoving = true;
+			if (chosen_output_id == 1)
+			{
+				if (validMove(getPosition() + Vector2f(0, 100 * dt)))
+				{
+					move(0, 100 * dt);
+					if(delay_down<=0)
+					distance_walked += 100 * dt;
+				}
+				delay_left = 0.5f;
+				delay_up = 0.5f;
+				delay_right = 0.5f;
+				facing = 3;
+				face_x = 0.0f;
+				face_y = 1.0f;
+				isMoving = true;
+			}
 		}
 		if (chosen_output_id == 5)
 		 {
@@ -278,7 +304,7 @@ void NEATPlayer::Update(const float &dt)
 void NEATPlayer::EndOfRunCalculations()
 {
 	//m_dFitness += time_alive + (kills*50.0f) - damage_taken + damage_done;
-	m_dFitness += (kills * 1000.0f + distance_walked) / 1000.0f;
+	m_dFitness += (kills * 100.0f + (distance_walked)) / 100.0f;
 	f_last_fitness = m_dFitness;
 }
 void NEATPlayer::WorldTransform(vector<SPoint> &sweeper, double scale)

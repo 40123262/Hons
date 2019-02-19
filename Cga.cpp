@@ -1,6 +1,6 @@
 #include "Cga.h"
 
-
+int best_id = 0;
 //-------------------------------------------------------------------------
 //	this constructor creates a base genome from supplied values and creates 
 //	a population of 'size' similar (same topology, varying weights) genomes
@@ -17,6 +17,7 @@ Cga::Cga(int  size,
                     m_dTotFitAdj(0),
                     m_dAvFitAdj(0)
 {
+
 	//create the population of genomes
 	for (int i=0; i<m_iPopSize; ++i)
 	{
@@ -32,7 +33,37 @@ Cga::Cga(int  size,
   //create the network depth lookup table
   vecSplits = Split(0, 1, 0);
 }
+Cga::Cga(int  size,
+	int  inputs,
+	int  outputs,
+	bool):m_iPopSize(size),
+	m_pInnovation(NULL),
+	m_iNextGenomeID(0),
+	m_iNextSpeciesID(0),
+	m_iFittestGenome(0),
+	m_dBestEverFitness(0),
+	m_dTotFitAdj(0),
+	m_dAvFitAdj(0)
+{
 
+	//create the population of genomes
+
+
+	
+
+	//create the innovation list. First create a minimal genome
+	CGenome genome;
+	genome.CreateFromFile("saved/dbg_BestGenome.txt");
+	//create the innovations
+	m_pInnovation = new CInnovation(genome.LinkGenes(), genome.NeuronGenes());
+	//m_pInnovation->CreateFromFile("saved/dbg_Innovations.txt");
+	for (int i = 0; i < m_iPopSize; ++i)
+	{
+		m_vecGenomes.push_back(genome);
+	}
+	//create the network depth lookup table
+	vecSplits = Split(0, 1, 0);
+}
 
 
 //------------------------------------- dtor -----------------------------
@@ -70,6 +101,130 @@ vector<CNeuralNet*> Cga::CreatePhenotypes()
 
 	return networks;
 }
+/*
+bool Cga::RecreatePhenotypes()
+{
+
+	CGenome* temp;
+	temp->CreateFromFile("saved/dbg_BestGenome.txt");
+	std::cout << "loaded!" << endl;
+	
+	vector<CNeuralNet*> networks;
+	ifstream file("saved/genome.csv");
+	std::cout << "Genome file loaded!" << endl;
+	string genome_id;
+	int gen_id;
+	string network_depth;
+	int net_dep;
+	string number_neurons;
+	int num_neur;
+	string num_lin;
+	int number_links;
+	vector<SNeuron*>  vecNeurons;
+	try
+	{
+		//////////////////////////READ IN GENOME ID , NETWORK DEPTH and NUMBER OF NEURONS
+		getline(file, genome_id);
+		gen_id = std::stoi(genome_id);
+		getline(file, network_depth);
+		net_dep = std::stoi(network_depth);
+		getline(file, number_neurons);
+		num_neur = std::stoi(number_neurons);
+		std::cout << gen_id << "," << net_dep << "," << num_neur << endl;
+		for (int i = 0; i < num_neur; i++)
+		{
+			string line;
+			getline(file, line);
+			stringstream undivided_line(line);
+			string temp;
+			vector<string> _tokens;
+			while (getline(undivided_line, temp, ','))
+			{
+				_tokens.push_back(temp);
+			}
+			SNeuron* pNeuron = new SNeuron(neuron_type(std::stoi(_tokens[1])),
+				std::stoi(_tokens[0]),
+				std::stod(_tokens[5]),
+				std::stod(_tokens[4]),
+				std::stoi(_tokens[3]));
+
+			vecNeurons.push_back(pNeuron);
+			std::cout<< neuron_type(std::stoi(_tokens[1]))<<","<<
+				std::stoi(_tokens[0]) << "," <<
+				std::stod(_tokens[5]) << "," <<
+				std::stod(_tokens[4]) << "," <<
+				std::stoi(_tokens[3]) << endl;
+		}
+		getline(file, num_lin);
+		number_links = std::stoi(num_lin);
+		std::cout << number_links << endl;
+		vector<SLinkGene>       m_vecLinks;
+		for (int cGene = 0; cGene < number_links; ++cGene)
+		{
+			string line;
+			getline(file, line);
+			stringstream undivided_line(line);
+			string temp;
+			vector<string> _tokens;
+			while (getline(undivided_line, temp, ','))
+			{
+				_tokens.push_back(temp);
+			}
+			//make sure the link gene is enabled before the connection is created
+			if (m_vecLinks[cGene].bEnabled)
+			{
+				//get the pointers to the relevant neurons
+				int element = std::stoi(_tokens[1]);
+				SNeuron* FromNeuron = vecNeurons[element];
+
+				element = std::stoi(_tokens[2]);
+				SNeuron* ToNeuron = vecNeurons[element];
+
+				//create a link between those two neurons and assign the weight stored
+				//in the gene
+				SLink tmpLink(std::stod(_tokens[5]) ,
+					FromNeuron,
+					ToNeuron,
+					std::stoi(_tokens[4]));
+
+				//add new links to neuron
+				FromNeuron->vecLinksOut.push_back(tmpLink);
+				ToNeuron->vecLinksIn.push_back(tmpLink);
+				std::cout << "From: " << std::stoi(_tokens[1])
+					<< "To: " << std::stoi(_tokens[2]) <<
+					"Weight: "<< std::stod(_tokens[5])<<
+					"Recurrent: " <<
+					std::stoi(_tokens[4]) << endl;
+			}
+		}
+
+
+	}
+	catch(exception e)
+	{
+		std::cout << "Genome file failed to load!" << endl;
+	}
+
+	CNeuralNet* net = new CNeuralNet(vecNeurons, net_dep);
+
+
+
+
+	for (int i = 0; i < m_iPopSize; i++)
+	{
+		//calculate max network depth
+		CalculateNetDepth(m_vecGenomes[i]);
+
+		//create new phenotype
+
+		networks.push_back(net);
+	}
+
+	return networks;
+	
+	return true;
+}
+*/
 
 //-------------------------- CalculateNetDepth ---------------------------
 //
@@ -152,15 +307,17 @@ vector<CNeuralNet*> Cga::Epoch(const vector<double> &FitnessScores)
   
 
   /* uncomment the following if you want to output the species info to a filename */
-  SpeciesDump("dbg_SpeciesDump.txt");
+ // SpeciesDump("dbg_SpeciesDump.txt");
 
   /* uncomment the following if you want to output the innovation info to a filename */
-  m_pInnovation->Write("dbg_Innovations.txt", m_iGeneration);
+	 m_pInnovation->Write("saved/dbg_Innovations.txt", m_iGeneration);
+
 
   /* uncomment the following if you want to output the best genome this generation
      to a filename */
-  WriteGenome("dbg_BestGenome.txt", m_iFittestGenome);
 
+  WriteGenome("saved/dbg_BestGenome.txt", m_iFittestGenome);
+ 
 
 
   //this will hold the new population of genomes
@@ -782,6 +939,30 @@ vector<SplitDepth> Cga::Split(double low, double high, int depth)
 //
 //  does what it says on the tin 
 //------------------------------------------------------------------------
+std::vector<std::string> Cga::SpeciesInfo()
+{
+	std::vector<std::string> temp;
+
+	for (int spc = 0; spc < m_vecSpecies.size(); ++spc)
+	{
+		if (m_vecSpecies[spc].BestFitness() == m_dBestEverFitness)
+		{
+			temp.push_back(itos(m_vecSpecies[spc].ID()));
+
+			temp.push_back(itos(m_vecSpecies[spc].Age()));
+
+			temp.push_back(itos(m_vecSpecies[spc].GensNoImprovement()));
+
+			temp.push_back("\nThreshold: " + ftos(CParams::dCompatibilityThreshold));
+
+			temp.push_back(itos(m_vecGenomes[best_id].NumNeurons()));
+			temp.push_back(itos(best_id));
+
+		}
+		
+	}
+	return temp;
+}
 void Cga::RenderSpeciesInfo(HDC &surface, RECT db)
 {
   if (m_vecSpecies.size() < 1) return;
@@ -859,8 +1040,9 @@ bool Cga::WriteGenome(const char* szFileName, const int idxGenome)
 
   CalculateNetDepth(m_vecGenomes[idxGenome]);
 
-  if (m_vecGenomes[idxGenome].Write(out))
+  if (m_vecGenomes[idxGenome].Write(out, m_iGeneration))
   {
+	  best_id = idxGenome;
     return true;
   }
 

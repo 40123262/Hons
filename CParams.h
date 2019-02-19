@@ -152,6 +152,8 @@ public:
 
   static bool bRender;
 
+  static bool bLoad;
+
   
   //----------------------------------------------------------------------
   // used in Cga.h/cpp

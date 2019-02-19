@@ -71,7 +71,14 @@ struct SNeuronGene
     
     return os;
   }
+  friend ostream& operator <<=(ostream &os, const SNeuronGene &rhs)
+  {
+	  os << "\n" << rhs.iID << "," << rhs.NeuronType
+		  << "," << rhs.bRecurrent << "," << rhs.dActivationResponse
+		  << "," << rhs.dSplitX << "," << rhs.dSplitY;
 
+	  return os;
+  }
   
 };
 
@@ -124,6 +131,14 @@ struct SLinkGene
        << "  Recurrent: " << rhs.bRecurrent << "  Weight: " << rhs.dWeight;
 
     return os;
+  }
+  friend ostream& operator <<=(ostream &os, const SLinkGene &rhs)
+  {
+	  os << "\n" << rhs.InnovationID << "," << rhs.FromNeuron
+		  << "," << rhs.ToNeuron << "," << rhs.bEnabled
+		  << "," << rhs.bRecurrent << "," << rhs.dWeight;
+
+	  return os;
   }
 };
 

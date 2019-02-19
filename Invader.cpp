@@ -34,12 +34,45 @@ void Invader::Update(const float &dt)
 		Die();
 	if (alive)
 	{
+		hit_landed = false;
 		fireTime -= dt ;
 		t_idle += dt ;
 		isMoving = false;
 
+		if (miss_count > 0)
+		{
+			if (facing == 1)
+			{
+				facing = 2;
+				face_x = 1.0f;
+				face_y = 0.0f;
+				miss_count = 0;
+				
+			}
+			else if (facing == 2)
+			{
+				facing = 3;
+				face_x = 0.0f;
+				face_y = 1.0f;
+				miss_count = 0;
+			}
+			else if (facing == 3)
+			{
+				facing = 4;
+				face_x = -1.0f;
+				face_y = 0.0f;
+				miss_count = 0;
+			}
+			else if (facing == 4)
+			{
+				facing = 1;
+				face_x = 0.0f;
+				face_y = -1.0f;
+				miss_count = 0;
+			}
+		}
 		Vector2f vec = (target->getPosition() - target->getOrigin()) - (getPosition() - getOrigin());
-		if (length((target->getPosition() - target->getOrigin()) - (getPosition() - getOrigin())) >= 32.0f)
+		if (!pushed && length((target->getPosition() - target->getOrigin()) - (getPosition() - getOrigin())) >= 32.0f)
 		{
 			isMoving = true;
 			if (vec.x >= 0 && vec.y >= 0)
@@ -131,6 +164,8 @@ void Invader::Update(const float &dt)
 							}
 							t_idle = 0;
 							p->getHit(20.0f);
+							miss_count = 0;
+							hit_landed = true;
 						}
 						else
 						{
@@ -152,6 +187,8 @@ void Invader::Update(const float &dt)
 								Push(0, 0, false);
 							}
 							t_idle = 0;
+							miss_count = 0;
+							hit_landed = true;
 							p->parry();
 						}
 
@@ -159,6 +196,8 @@ void Invader::Update(const float &dt)
 				}
 				isAttacking = true;
 				fireTime = 1.0f;
+				if (!hit_landed)
+					miss_count++;
 			}
 		}
 	}

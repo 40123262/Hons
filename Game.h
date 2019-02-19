@@ -10,6 +10,7 @@ constexpr uint16_t invaders_rows = 1;
 constexpr uint16_t invaders_columns = 1;
 
 extern float idle_time;
+extern bool lock_keys;
 extern sf::Texture spritesheet, player_spritesheet;
 extern std::vector<Player*> m_vecEnemies;
 extern std::vector<NEATPlayer*> m_vecPlayers;

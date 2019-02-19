@@ -50,6 +50,7 @@ double CParams::dCrossoverRate            = 0;
 int CParams::iMaxNumberOfSpecies          = 0;
 
 bool CParams::bRender                     = 1;
+bool CParams::bLoad							= 1;
 float CParams::fSpeedUp                     = 1;
 
 
@@ -68,7 +69,7 @@ bool CParams::LoadInParameters(char* szFileName)
   }
 
   //load in from the file
-  char ParamDescription[44];
+  char ParamDescription[46];
 
   grab >> ParamDescription;
   grab >> iFramesPerSecond;
@@ -132,6 +133,8 @@ bool CParams::LoadInParameters(char* szFileName)
   grab >> fSpeedUp;
   grab >> ParamDescription;
   grab >> bRender;
+  grab >> ParamDescription;
+  grab >> bLoad;
 
 
   return true;

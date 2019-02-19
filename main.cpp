@@ -22,7 +22,7 @@ using namespace std;
 
 //The controller class for this simulation
 CController*	g_pController = NULL;
-
+bool lock_keys = false;
 CParams   g_Params;
 sf::View camera;
 //global handle to the info window
@@ -97,6 +97,13 @@ void Update(RenderWindow &window)
 	{
 		m_vecEnemies[i]->Update(dt);
 	}
+	if (key_delay <= 0 && Keyboard::isKeyPressed(Keyboard::Multiply))
+	{
+		lock_keys = (lock_keys) ? false : true;
+		key_delay = 0.5f;
+	}
+	if(!lock_keys)
+	{ 
 	if (Keyboard::isKeyPressed(Keyboard::Left))
 	{
 		cam_pos.x -= 500.0f*dt;
@@ -116,7 +123,8 @@ void Update(RenderWindow &window)
 	if (key_delay <=0 && Keyboard::isKeyPressed(Keyboard::R))
 	{
 		CParams::bRender = (CParams::bRender) ? false : true;
-		key_delay = 0.3f;
+		key_delay = 0.5f;
+	}
 	}
 	
 
@@ -140,7 +148,7 @@ int main()
 	//FreeConsole();
 	camera.setCenter(cam_pos); //in constructor
 	camera.setSize(gameWidth, gameHeight); //in constructor
-	RenderWindow window(VideoMode(gameWidth, gameHeight), "NEAT", sf::Style::None);
+	RenderWindow window(VideoMode(gameWidth, gameHeight), "NEAT", sf::Style::Titlebar);
 	window.setView(camera);
 	Load();
 	while (window.isOpen())
