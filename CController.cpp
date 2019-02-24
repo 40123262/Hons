@@ -171,12 +171,14 @@ bool CController::Update(const float &dt)
 	
 
 
-	if(m_iGenerations<1)
-	gen.setString("Generation: " + std::to_string(m_iGenerations) + "\nNum Species: " + itos(m_pPop->NumSpecies()) + "\nAverage Fitness: " + std::to_string(avg_fit) + "\nBest Fitness so far: " + ftos(m_pPop->BestEverFitness())  + "\nBest fitness this gen:" + std::to_string(best_fitness) + "\nFPS:" + std::to_string((int)(1.0f*CParams::fSpeedUp / dt)));
+	if (m_iGenerations < 1)
+	{
+		gen.setString("Generation: " + std::to_string(m_iGenerations) + "\nNum Species: " + itos(m_pPop->NumSpecies()) + "\nAverage Fitness: " + std::to_string(avg_fit) + "\nBest Fitness so far: " + ftos(m_pPop->BestEverFitness()) + "\nBest fitness this gen:" + std::to_string(best_fitness) + "\nFPS:" + std::to_string((int)(1.0f*CParams::fSpeedUp / dt)));
+	}
 	else
 	{
-		std::vector<std::string> temp = m_pPop->SpeciesInfo();
-		gen.setString("Generation: " + std::to_string(m_iGenerations) + "\nNum Species: " + itos(m_pPop->NumSpecies()) + "\nAverage Fitness: " + std::to_string(avg_fit) + "\nAll time Best Fitness so far: " + ftos(m_pPop->BestEverFitness()) + "\nBest fitness this gen:" + std::to_string(best_fitness) + "\nAll time Best Species ID: " + temp[0] + "\nAll time Best Species age: " + temp[1] + "\nBest Species gens no improvement: " + temp[2] + temp[3] + "\nBest Species number of neurons: " + temp[4] + "\nBest Species ID: " + temp[5] + "\nFPS:" + std::to_string((int)(1.0f*CParams::fSpeedUp / dt)));
+		std::string temp = m_pPop->SpeciesInfo();
+		gen.setString("Generation: " + std::to_string(m_iGenerations) + "\nNum Species: " + itos(m_pPop->NumSpecies()) + "\nAverage Fitness: " + std::to_string(avg_fit) + "\nAll time Best Fitness so far: " + ftos(m_pPop->BestEverFitness()) + "\nBest fitness this gen:" + std::to_string(best_fitness) + temp +  "\nFPS:" + std::to_string((int)(1.0f*CParams::fSpeedUp / dt)));
 	}
 	for (auto p : m_vecPlayers)
 	{
@@ -301,7 +303,7 @@ bool CController::Update(const float &dt)
 //
 //  Renders the best four phenotypes from the previous generation
 //------------------------------------------------------------------------
-void CController::RenderNetworks(HDC &surface)
+void CController::RenderNetworks(RenderWindow &window)
 {
   if (m_iGenerations < 1)
   {
@@ -317,10 +319,10 @@ void CController::RenderNetworks(HDC &surface)
 	int	cyInfo = rect.bottom;
 
    //now draw the 4 best networks
-	m_vecBestPlayers[0]->DrawNet(surface, 0, cxInfo/2, cyInfo/2, 0);
-	m_vecBestPlayers[1]->DrawNet(surface, cxInfo/2, cxInfo, cyInfo/2, 0);
-	m_vecBestPlayers[2]->DrawNet(surface, 0, cxInfo/2, cyInfo, cyInfo/2);
-	m_vecBestPlayers[3]->DrawNet(surface, cxInfo/2, cxInfo, cyInfo, cyInfo/2);
+//	m_vecBestPlayers[0]->DrawNet(surface, 0, cxInfo/2, cyInfo/2, 0);
+//	m_vecBestPlayers[1]->DrawNet(surface, cxInfo/2, cxInfo, cyInfo/2, 0);
+//	m_vecBestPlayers[2]->DrawNet(surface, 0, cxInfo/2, cyInfo, cyInfo/2);
+//	m_vecBestPlayers[3]->DrawNet(surface, cxInfo/2, cxInfo, cyInfo, cyInfo/2);
 }
 void CController::Render(sf::RenderWindow &window)
 {

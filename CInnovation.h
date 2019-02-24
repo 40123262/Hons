@@ -119,7 +119,8 @@ public:
 
   CInnovation(vector<SLinkGene>   start_genes,
               vector<SNeuronGene> start_neurons);
-		
+  CInnovation(bool , vector<SLinkGene>   start_genes,
+	  vector<SNeuronGene> start_neurons);
   //checks to see if this innovation has already occurred. If it has it
   //returns the innovation ID. If not it returns a negative value.
   int   CheckInnovation(int in, int out, innov_type type);

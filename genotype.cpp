@@ -238,10 +238,7 @@ int CGenome::GetElementPos(int neuron_id)
 	}
 	
   string s = itos(neuron_id);
-  for (i = 0; i < m_vecNeurons.size(); ++i)
-  {
-	  std::cout << m_vecNeurons[i].iID << endl;
-  }
+
   MessageBox(NULL, "Error in CGenome::GetElementPos", s.c_str(), MB_OK);
 
 	return -1;
@@ -850,10 +847,7 @@ bool CGenome::CreateFromFile(const char* szFileName)
 	
     
   }//grab next neuron
-  for (auto a : m_vecNeurons)
-  {
-	  std::cout << "Added Neuron ID: "<< a.iID << endl;
-  }
+
   //grab the link data and create the link genes
   int NumLinks = 0;
   in >> buffer; in >> NumLinks;
@@ -886,11 +880,7 @@ bool CGenome::CreateFromFile(const char* szFileName)
 
 
   }//next link
-  int c = 0;
-  for (auto a : m_vecLinks)
-  {
-	  std::cout << c++ << " From: " << a.FromNeuron << " To: " << a.ToNeuron<< endl;
-  }
+
   return true;
 }
 

@@ -55,7 +55,7 @@ Cga::Cga(int  size,
 	CGenome genome;
 	genome.CreateFromFile("saved/dbg_BestGenome.txt");
 	//create the innovations
-	m_pInnovation = new CInnovation(genome.LinkGenes(), genome.NeuronGenes());
+	m_pInnovation = new CInnovation(true, genome.LinkGenes(), genome.NeuronGenes());
 	//m_pInnovation->CreateFromFile("saved/dbg_Innovations.txt");
 	for (int i = 0; i < m_iPopSize; ++i)
 	{
@@ -468,6 +468,7 @@ vector<CNeuralNet*> Cga::Epoch(const vector<double> &FitnessScores)
 
   //replace the current population with the new one
   m_vecGenomes = NewPop;
+  
 
   //create the new phenotypes
   vector<CNeuralNet*> new_phenotypes;
@@ -939,29 +940,10 @@ vector<SplitDepth> Cga::Split(double low, double high, int depth)
 //
 //  does what it says on the tin 
 //------------------------------------------------------------------------
-std::vector<std::string> Cga::SpeciesInfo()
+std::string Cga::SpeciesInfo()
 {
-	std::vector<std::string> temp;
 
-	for (int spc = 0; spc < m_vecSpecies.size(); ++spc)
-	{
-		if (m_vecSpecies[spc].BestFitness() == m_dBestEverFitness)
-		{
-			temp.push_back(itos(m_vecSpecies[spc].ID()));
-
-			temp.push_back(itos(m_vecSpecies[spc].Age()));
-
-			temp.push_back(itos(m_vecSpecies[spc].GensNoImprovement()));
-
-			temp.push_back("\nThreshold: " + ftos(CParams::dCompatibilityThreshold));
-
-			temp.push_back(itos(m_vecGenomes[best_id].NumNeurons()));
-			temp.push_back(itos(best_id));
-
-		}
-		
-	}
-	return temp;
+	return best_species_text;
 }
 void Cga::RenderSpeciesInfo(HDC &surface, RECT db)
 {
@@ -1042,7 +1024,7 @@ bool Cga::WriteGenome(const char* szFileName, const int idxGenome)
 
   if (m_vecGenomes[idxGenome].Write(out, m_iGeneration))
   {
-	  best_id = idxGenome;
+	  best_species_text = "\nBest genome ID: " + itos(m_vecGenomes[idxGenome].ID() ) + "\nNumber of neurons: " + itos(m_vecGenomes[idxGenome].NumNeurons())+ " ";
     return true;
   }
 

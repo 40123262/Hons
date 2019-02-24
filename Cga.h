@@ -125,6 +125,7 @@ private:
   vector<SplitDepth> Split(double low, double high, int depth);
   
   
+  std::string best_species_text;
 public:
 
 	//normal constructor. Creates a population starting with minimal 
@@ -157,7 +158,7 @@ public:
   //renders the best performing species statistics and a visual aid
   //showing the distribution.
   void                 RenderSpeciesInfo(HDC &surface, RECT db);
-  std::vector<std::string>    SpeciesInfo();
+  std::string    SpeciesInfo();
 
   //returns a vector of the n best phenotypes from the previous generation
   vector<CNeuralNet*>  GetBestPhenotypesFromLastGeneration();

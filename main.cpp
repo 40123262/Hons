@@ -142,21 +142,33 @@ void Render(RenderWindow &window)
 	
 	
 }
+void RenderPhenotypes(RenderWindow &window)
+{
+	
+	g_pController->RenderNetworks(window);
 
+	//	std::cout << "Enemies: " << m_vecEnemies.size() << "    NEATs: " << m_vecPlayers.size() << endl;
+
+
+}
 int main()
 {
 	//FreeConsole();
 	camera.setCenter(cam_pos); //in constructor
 	camera.setSize(gameWidth, gameHeight); //in constructor
 	RenderWindow window(VideoMode(gameWidth, gameHeight), "NEAT", sf::Style::Titlebar);
+	RenderWindow phenotypes(VideoMode(gameWidth/1.5f, gameHeight/1.5f), "Best phenotypes", sf::Style::Titlebar);
 	window.setView(camera);
 	Load();
 	while (window.isOpen())
 	{
 		window.clear();
+		phenotypes.clear();
 		Update(window);
+		RenderPhenotypes(phenotypes);
 		Render(window);
 		window.display();
+		phenotypes.display();
 	}
 	return 0;
 }

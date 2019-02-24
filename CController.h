@@ -118,7 +118,7 @@ public:
 
   //renders the phenotypes of the four best performers from
   //the previous generation
-  void    RenderNetworks(HDC &surface);
+  void    RenderNetworks(RenderWindow &window);
 	
 	bool		Update(const float &dt);
 

@@ -34,6 +34,36 @@ CInnovation::CInnovation(vector<SLinkGene>   start_genes,
 	}
 }
 
+
+CInnovation::CInnovation(bool, vector<SLinkGene>   start_genes,
+	vector<SNeuronGene> start_neurons)
+{
+	m_NextNeuronID = 0;
+	m_NextInnovationNum = 0;
+
+	//add the neurons
+	for (int nd = 0; nd < start_neurons.size(); ++nd)
+	{
+		m_vecInnovs.push_back(SInnovation(start_neurons[nd],
+			m_NextInnovationNum++,
+			start_neurons[nd].iID ));
+	}
+
+	//add the links
+	for (int cGen = 0; cGen < start_genes.size(); ++cGen)
+	{
+		SInnovation NewInnov(start_genes[cGen].FromNeuron,
+			start_genes[cGen].ToNeuron,
+			new_link,
+			m_NextInnovationNum);
+
+		m_vecInnovs.push_back(NewInnov);
+
+		++m_NextInnovationNum;
+
+	}
+}
+
 //---------------------------CheckInnovation------------------------------
 //
 //	checks to see if this innovation has already occurred. If it has it
