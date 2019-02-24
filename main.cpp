@@ -157,7 +157,7 @@ int main()
 	camera.setCenter(cam_pos); //in constructor
 	camera.setSize(gameWidth, gameHeight); //in constructor
 	RenderWindow window(VideoMode(gameWidth, gameHeight), "NEAT", sf::Style::Titlebar);
-	RenderWindow phenotypes(VideoMode(gameWidth/1.5f, gameHeight/1.5f), "Best phenotypes", sf::Style::Titlebar);
+	RenderWindow phenotypes(VideoMode(gameWidth, gameHeight), "Best phenotypes", sf::Style::Titlebar);
 	window.setView(camera);
 	Load();
 	while (window.isOpen())

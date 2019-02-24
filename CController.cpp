@@ -312,17 +312,16 @@ void CController::RenderNetworks(RenderWindow &window)
 
   //draw the network of the best 4 genomes. First get the dimensions of the 
    //info window
-   RECT rect;
-	GetClientRect(m_hwndInfo, &rect);
+#
 
-	int	cxInfo = rect.right;
-	int	cyInfo = rect.bottom;
+	int	cxInfo = gameWidth;
+	int	cyInfo = gameHeight;
 
    //now draw the 4 best networks
-//	m_vecBestPlayers[0]->DrawNet(surface, 0, cxInfo/2, cyInfo/2, 0);
-//	m_vecBestPlayers[1]->DrawNet(surface, cxInfo/2, cxInfo, cyInfo/2, 0);
-//	m_vecBestPlayers[2]->DrawNet(surface, 0, cxInfo/2, cyInfo, cyInfo/2);
-//	m_vecBestPlayers[3]->DrawNet(surface, cxInfo/2, cxInfo, cyInfo, cyInfo/2);
+	m_vecBestPlayers[0]->DrawNet(window, 0, cxInfo/2, cyInfo/2, 0);
+	m_vecBestPlayers[1]->DrawNet(window, cxInfo/2, cxInfo, cyInfo/2, 0);
+	m_vecBestPlayers[2]->DrawNet(window, 0, cxInfo/2, cyInfo, cyInfo/2);
+	m_vecBestPlayers[3]->DrawNet(window, cxInfo/2, cxInfo, cyInfo, cyInfo/2);
 }
 void CController::Render(sf::RenderWindow &window)
 {

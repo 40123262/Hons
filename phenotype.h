@@ -12,6 +12,8 @@
 //        
 //-----------------------------------------------------------------------
 
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 #include <vector>
 #include <math.h>
 #include <windows.h>
@@ -136,7 +138,7 @@ public:
   vector<double>  Update(const vector<double> &inputs, const run_type type);
 
   //draws a graphical representation of the network to a user speciefied window
-  void            DrawNet(HDC &surface,
+  void            DrawNet(sf::RenderWindow &window,
                           int cxLeft,
                           int cxRight,
                           int cyTop,

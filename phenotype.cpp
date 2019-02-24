@@ -214,7 +214,7 @@ void TidyXSplits(vector<SNeuron*> &neurons)
 //  creates a representation of the ANN on a device context
 //
 //------------------------------------------------------------------------
-void CNeuralNet::DrawNet(HDC &surface, int Left, int Right, int Top, int Bottom)
+void CNeuralNet::DrawNet(sf::RenderWindow &window, int Left, int Right, int Top, int Bottom)
 {
   //the border width
   const int border = 10;
@@ -234,24 +234,10 @@ void CNeuralNet::DrawNet(HDC &surface, int Left, int Right, int Top, int Bottom)
     m_vecpNeurons[cNeuron]->iPosY = (Top - border) - (spanY * m_vecpNeurons[cNeuron]->dSplitY);
   }
 
-  //create some pens and brushes to draw with
-  HPEN GreyPen  = CreatePen(PS_SOLID, 1, RGB(200, 200, 200));
-  HPEN RedPen   = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
-  HPEN GreenPen = CreatePen(PS_SOLID, 1, RGB(0, 200, 0));
-  HPEN OldPen   = NULL;
-
-  //create a solid brush
-  HBRUSH RedBrush = CreateSolidBrush(RGB(255, 0, 0));
-  HBRUSH OldBrush = NULL;
-
-  OldPen =   (HPEN)  SelectObject(surface, RedPen);
-  OldBrush = (HBRUSH)SelectObject(surface, GetStockObject(HOLLOW_BRUSH));
-
-
   //radius of neurons
   int radNeuron = spanX/60;
   int radLink = radNeuron * 1.5;
-  
+  sf::Color drawingColour = sf::Color::White;
   //now we have an X,Y pos for every neuron we can get on with the
   //drawing. First step through each neuron in the network and draw
   //the links
@@ -267,6 +253,7 @@ void CNeuralNet::DrawNet(HDC &surface, int Left, int Right, int Top, int Bottom)
 
     if (m_vecpNeurons[cNeuron]->NeuronType == bias)
     {
+		drawingColour = sf::Color::Green;
       bBias = true;
     }
 
@@ -283,38 +270,45 @@ void CNeuralNet::DrawNet(HDC &surface, int Left, int Right, int Top, int Bottom)
         
         Clamp(thickness, 0, MaxThickness);
 
-        HPEN Pen;
+    
 
         //create a yellow pen for inhibitory weights
         if (m_vecpNeurons[cNeuron]->vecLinksOut[cLnk].dWeight <= 0)
         {
-          Pen  = CreatePen(PS_SOLID, thickness, RGB(240, 230, 170));
-        }
+			drawingColour = sf::Color::Yellow;
+		}
 
         //grey for excitory
         else
         {
-          Pen  = CreatePen(PS_SOLID, thickness, RGB(200, 200, 200));
+			drawingColour = sf::Color::White;
         }
         
-        HPEN tempPen = (HPEN)SelectObject(surface, Pen);
+       // HPEN tempPen = (HPEN)SelectObject(surface, Pen);
         
+
+		//sf::Vertex line[2];
+		sf::Vertex line[] =
+		{
+			sf::Vertex(sf::Vector2f(StartX, StartY), drawingColour),
+			sf::Vertex(sf::Vector2f(EndX, EndY), drawingColour)
+		};
         //draw the link
-        MoveToEx(surface, StartX, StartY, NULL);
-        LineTo(surface, EndX, EndY);
 
-        SelectObject(surface, tempPen);
-
-        DeleteObject(Pen);
+		window.draw(line, 2, sf::Lines);
+      
       }
 
       else if( (!m_vecpNeurons[cNeuron]->vecLinksOut[cLnk].bRecurrent) && bBias)
       {
-        SelectObject(surface, GreenPen);
-        
-        //draw the link
-        MoveToEx(surface, StartX, StartY, NULL);
-        LineTo(surface, EndX, EndY);
+		  sf::Vertex line[] =
+		  {
+			  sf::Vertex(sf::Vector2f(StartX, StartY), drawingColour),
+			  sf::Vertex(sf::Vector2f(EndX, EndY), drawingColour)
+		  };
+		  //draw the link
+
+		  window.draw(line, 2, sf::Lines);
       }
 
       //recurrent link draw in red
@@ -323,35 +317,30 @@ void CNeuralNet::DrawNet(HDC &surface, int Left, int Right, int Top, int Bottom)
         if ((StartX == EndX) && (StartY == EndY))
         {
 
-          int thickness = (int)(fabs(m_vecpNeurons[cNeuron]->vecLinksOut[cLnk].dWeight));
-
-          Clamp(thickness, 0, MaxThickness);
-          
-          HPEN Pen;
-
           //blue for inhibitory
           if (m_vecpNeurons[cNeuron]->vecLinksOut[cLnk].dWeight <= 0)
           {
-            Pen  = CreatePen(PS_SOLID, thickness, RGB(0,0,255));
+           drawingColour = sf::Color::Blue;
           }
 
           //red for excitory
           else
           {
-            Pen  = CreatePen(PS_SOLID, thickness, RGB(255, 0, 0));
+			  drawingColour = sf::Color::Red;
           }
 
-          HPEN tempPen = (HPEN)SelectObject(surface, Pen);
           
           //we have a recursive link to the same neuron draw an ellipse
           int x = m_vecpNeurons[cNeuron]->iPosX ; 
           int y = m_vecpNeurons[cNeuron]->iPosY - (1.5 * radNeuron);
 
-          Ellipse(surface, x-radLink, y-radLink, x+radLink, y+radLink);
-          
-          SelectObject(surface, tempPen);
-          
-          DeleteObject(Pen);
+		  sf::CircleShape circle(radLink);
+		  circle.setPosition(x - radLink, y + radLink);
+		  circle.setOutlineColor(drawingColour);
+		  circle.setOutlineThickness(2);
+		  circle.setFillColor(sf::Color::Transparent);
+		  window.draw(circle);
+
         }
 
         else
@@ -360,30 +349,29 @@ void CNeuralNet::DrawNet(HDC &surface, int Left, int Right, int Top, int Bottom)
 
           Clamp(thickness, 0, MaxThickness);
 
-          HPEN Pen;
+         // HPEN Pen;
 
           //blue for inhibitory
           if (m_vecpNeurons[cNeuron]->vecLinksOut[cLnk].dWeight <= 0)
           {
-            Pen  = CreatePen(PS_SOLID, thickness, RGB(0,0,255));
+			  drawingColour = sf::Color::Blue;
           }
 
           //red for excitory
           else
           {
-            Pen  = CreatePen(PS_SOLID, thickness, RGB(255, 0, 0));
+			  drawingColour = sf::Color::Red;
           }
           
         
-          HPEN tempPen = (HPEN)SelectObject(surface, Pen);
+		  sf::Vertex line[] =
+		  {
+			  sf::Vertex(sf::Vector2f(StartX, StartY), drawingColour),
+			  sf::Vertex(sf::Vector2f(EndX, EndY), drawingColour)
+		  };
+		  //draw the link
 
-          //draw the link
-          MoveToEx(surface, StartX, StartY, NULL);
-          LineTo(surface, EndX, EndY);
-
-          SelectObject(surface, tempPen);
-          
-          DeleteObject(Pen);
+		  window.draw(line, 2, sf::Lines);
         }
       }
 
@@ -391,28 +379,23 @@ void CNeuralNet::DrawNet(HDC &surface, int Left, int Right, int Top, int Bottom)
   }
 
   //now draw the neurons and their IDs
-  SelectObject(surface, RedBrush);
-  SelectObject(surface, GetStockObject(BLACK_PEN));
+//  SelectObject(surface, RedBrush);
+ // SelectObject(surface, GetStockObject(BLACK_PEN));
 
   for (int cNeuron=0; cNeuron<m_vecpNeurons.size(); ++cNeuron)
   {
     int x = m_vecpNeurons[cNeuron]->iPosX; 
     int y = m_vecpNeurons[cNeuron]->iPosY;
 
-    //display the neuron
-    Ellipse(surface, x-radNeuron, y-radNeuron, x+radNeuron, y+radNeuron); 
+	sf::CircleShape circle(radNeuron/2.0f);
+	circle.setPosition(x- radNeuron / 2.0f, y - radNeuron / 2.0f);
+	circle.setOutlineColor(sf::Color::Black);
+	circle.setOutlineThickness(2);
+	circle.setFillColor(sf::Color::Red);
+	window.draw(circle);
   }
 
-  //cleanup
-  SelectObject(surface, OldPen);
-  SelectObject(surface, OldBrush);
-  
-  DeleteObject(RedPen);
-  DeleteObject(GreyPen);
-  DeleteObject(GreenPen);
-  DeleteObject(OldPen);
-  DeleteObject(RedBrush);
-  DeleteObject(OldBrush);
+ 
 }
 
 

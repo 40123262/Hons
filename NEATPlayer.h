@@ -68,9 +68,9 @@ public:
 	void setStart(sf::Vector2f pos) { start_positon = pos; setPosition(pos); }
 	void      RenderStats(HDC surface);
 	bool isPlayer() override;
-	void      DrawNet(HDC &surface, int cxLeft, int cxRight, int cyTop, int cyBot)
+	void      DrawNet(sf::RenderWindow &window, int cxLeft, int cxRight, int cyTop, int cyBot)
 	{
-		m_pItsBrain->DrawNet(surface, cxLeft, cxRight, cyTop, cyBot);
+		m_pItsBrain->DrawNet(window, cxLeft, cxRight, cyTop, cyBot);
 	}
 	void setBest();
 	void setNormal();
