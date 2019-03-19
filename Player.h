@@ -6,6 +6,7 @@
 class Player : public sf::Sprite
 {
 protected:
+	bool isNEAT = false;
 	sf::Text text_time_alive;
 	sf::Text text_kills;
 	sf::Text text_last_fitness;

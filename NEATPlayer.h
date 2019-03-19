@@ -76,7 +76,7 @@ public:
 	void setNormal();
 	
 	//float getFitness() { return time_alive + (kills*50.0f) - damage_taken + damage_done; };
-	float getFitness() { return (kills * 100.0f  + (distance_walked))/100.0f; }
+	float getFitness() { return damage_done / 100.0f  + distance_walked/10000.0f; }
 	void Die() override;
 	void Update(const float &dt) override;
 	bool NN_Update(const float &dt);

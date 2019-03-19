@@ -1,4 +1,5 @@
 #include "CController.h"
+#include <ctime>
 
 
 
@@ -23,7 +24,7 @@ CController::CController(int  cxClient,
                          int  cyClient): m_NumSweepers(CParams::iPopSize), 
 										                     m_bFastRender(false),
                                          m_bRenderBest(false),
-										                     m_iTicks(0),										                     
+										                     m_iTicks(0.0f),										                     
                                          m_hwndInfo(NULL),
 											m_iGenerations(0),
                                          m_cxClient(cxClient),
@@ -136,10 +137,10 @@ bool CController::Update(const float &dt)
 	//run the sweepers through NUM_TICKS amount of cycles. During this loop each
 	//sweepers NN is constantly updated with the appropriate information from its 
 	//surroundings. The output from the NN is obtained and the sweeper is moved. 
-
+	m_iTicks += dt/CParams::fSpeedUp;
 	if (!lock_keys && show_sensors_delay <= 0 && Keyboard::isKeyPressed(Keyboard::U))
 	{
-		for(auto p : m_vecPlayers)
+		for (auto p : m_vecPlayers)
 		{
 			if (p->isAlive())
 			{
@@ -168,7 +169,7 @@ bool CController::Update(const float &dt)
 		show_sensors_delay = 0.3f;
 	}
 	int left_alive = m_vecPlayers.size();
-	
+
 
 
 	if (m_iGenerations < 1)
@@ -178,7 +179,7 @@ bool CController::Update(const float &dt)
 	else
 	{
 		std::string temp = m_pPop->SpeciesInfo();
-		gen.setString("Generation: " + std::to_string(m_iGenerations) + "\nNum Species: " + itos(m_pPop->NumSpecies()) + "\nAverage Fitness: " + std::to_string(avg_fit) + "\nAll time Best Fitness so far: " + ftos(m_pPop->BestEverFitness()) + "\nBest fitness this gen:" + std::to_string(best_fitness) + temp +  "\nFPS:" + std::to_string((int)(1.0f*CParams::fSpeedUp / dt)));
+		gen.setString("Generation: " + std::to_string(m_iGenerations) + "\nNum Species: " + itos(m_pPop->NumSpecies()) + "\nAverage Fitness: " + std::to_string(avg_fit) + "\nAll time Best Fitness so far: " + ftos(m_pPop->BestEverFitness()) + "\nBest fitness this gen:" + std::to_string(best_fitness) + temp + "\nFPS:" + std::to_string((int)(1.0f*CParams::fSpeedUp / dt)));
 	}
 	for (auto p : m_vecPlayers)
 	{
@@ -188,7 +189,7 @@ bool CController::Update(const float &dt)
 		}
 	}
 
-	if (left_alive>0)
+	if (m_iTicks < CParams::fTimeLimit  && left_alive > 0)
 	{
 		for (int i = 0; i < m_NumSweepers; ++i)
 		{
@@ -227,7 +228,7 @@ bool CController::Update(const float &dt)
 	}
 
 	//We have completed another generation so now we need to run the GA
-	else
+	else if (m_iTicks >= CParams::fTimeLimit || left_alive <=0 )
 	{    
 		
     //first add up each sweepers fitness scores. (remember for this task

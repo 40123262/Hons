@@ -69,7 +69,7 @@ public:
   //--------------------------------------controller parameters
 
   //number of time steps we allow for each generation to live
-  static int    iNumTicks;
+  static int    fTimeLimit;
 
   //---------------------------------------------------------------------
   //  used in CMapper.h/cpp
@@ -138,7 +138,7 @@ public:
 
   //if the species are below this age their fitnesses are boosted
   static int    iYoungBonusAgeThreshhold;
-
+  
   //number of population to survive each epoch. (0.2 = 20%)
   static double dSurvivalRate;
 

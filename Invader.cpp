@@ -30,7 +30,7 @@ Invader::Invader(Vector2f pos, Player* tar)
 void Invader::Update(const float &dt)
 {
 	Player::Update(dt);
-	if (t_idle > 15.0f)
+	if (t_idle > 30.0f)
 		Die();
 	if (alive)
 	{
@@ -72,7 +72,8 @@ void Invader::Update(const float &dt)
 			}
 		}
 		Vector2f vec = (target->getPosition() - target->getOrigin()) - (getPosition() - getOrigin());
-		if (!pushed && length((target->getPosition() - target->getOrigin()) - (getPosition() - getOrigin())) >= 32.0f)
+		if(!pushed)
+		if (length((target->getPosition() - target->getOrigin()) - (getPosition() - getOrigin())) >= 32.0f)
 		{
 			isMoving = true;
 			if (vec.x >= 0 && vec.y >= 0)

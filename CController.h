@@ -90,7 +90,7 @@ private:
   bool        m_bRenderBest;
 	
 	//cycles per generation
-	int					m_iTicks;
+	float					m_iTicks;
 
 	//generation counter
 	int					m_iGenerations;

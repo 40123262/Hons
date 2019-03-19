@@ -18,7 +18,7 @@ double CParams::dSensorRange              = 0;
 double CParams::dColSensorRange			  = 40;
 
 int CParams::iPopSize                     = 1;
-int CParams::iNumTicks                    = 500;
+int CParams::fTimeLimit                    = 500;
 double CParams::dCollisionDist            = 0;
 double CParams::dCellSize                 = 0;
 double CParams::dSigmoidResponse          = 1;
@@ -84,7 +84,7 @@ bool CParams::LoadInParameters(char* szFileName)
   grab >> ParamDescription;
   grab >> iPopSize;
   grab >> ParamDescription;
-  grab >> iNumTicks;
+  grab >> fTimeLimit;
   grab >> ParamDescription;
   grab >> dCellSize;
   grab >> ParamDescription;

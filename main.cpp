@@ -56,7 +56,7 @@ void Load()
 	if (!font.loadFromFile("res/fonts/font.ttf")) {
 		cout << "Cannot load font!" << endl;
 	}
-	ls::loadLevelFile("res/levels/pacman.txt", 40.0f , ceil(CParams::iPopSize/4), 1);
+	ls::loadLevelFile("res/levels/stripe.txt", 32.0f , ceil(CParams::iPopSize/4), 1);
 
 	//setup the controller
 	g_pController = new CController(1280, 720);
@@ -71,7 +71,7 @@ void Update(RenderWindow &window)
 	float dt = clock.restart().asSeconds() * CParams::fSpeedUp;
 	idle_time += dt;
 	key_delay -= dt;
-	Event event;
+	Event event;	
 	while (window.pollEvent(event))
 	{
 		if (event.type == Event::Closed)
@@ -153,22 +153,22 @@ void RenderPhenotypes(RenderWindow &window)
 }
 int main()
 {
-	//FreeConsole();
+	FreeConsole();
 	camera.setCenter(cam_pos); //in constructor
 	camera.setSize(gameWidth, gameHeight); //in constructor
 	RenderWindow window(VideoMode(gameWidth, gameHeight), "NEAT", sf::Style::Titlebar);
-	RenderWindow phenotypes(VideoMode(gameWidth, gameHeight), "Best phenotypes", sf::Style::Titlebar);
+	//RenderWindow phenotypes(VideoMode(gameWidth, gameHeight), "Best phenotypes", sf::Style::Titlebar);
 	window.setView(camera);
 	Load();
 	while (window.isOpen())
 	{
 		window.clear();
-		phenotypes.clear();
+	//	phenotypes.clear();
 		Update(window);
-		RenderPhenotypes(phenotypes);
+	//	RenderPhenotypes(phenotypes);
 		Render(window);
 		window.display();
-		phenotypes.display();
+	//	phenotypes.display();
 	}
 	return 0;
 }

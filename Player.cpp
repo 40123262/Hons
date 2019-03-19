@@ -362,10 +362,16 @@ void Player::Reset(Vector2f pos)
 	time_alive = 0.0f;
 
 }
-bool Player::validMove(const sf::Vector2f &pos) {
-	int tile = LevelSystem::getTileAt(pos);
-	bool canWalk = (tile != ls::WALL);
-	return canWalk;
+bool Player::validMove(const sf::Vector2f &pos)
+{
+	if (isNEAT)
+	{
+		return (LevelSystem::getTileAt(pos) != ls::WALL);
+	}
+	else
+	{
+		return (LevelSystem::getTileAt(pos) != ls::WALL && LevelSystem::getTileAt(pos) != ls::WALL2);
+	}
 }
 void Player::Update(const float &dt)
 {
@@ -379,7 +385,7 @@ void Player::Update(const float &dt)
 	}
 	if (alive)
 	{
-		time_alive += dt;
+		time_alive += dt/CParams::fSpeedUp;
 		if (health <= 0)
 		{
 			Die();

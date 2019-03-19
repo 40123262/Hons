@@ -10,6 +10,7 @@ NEATPlayer::NEATPlayer() : m_dFitness(0), m_up(0), m_down(0), m_right(0), m_left
 {
 	alive = true;
 	show_hud = true;
+	isNEAT = true;
 	setTexture(player_spritesheet);
 	setTextureRect({ 168, 23, 23, 26 });
 	
@@ -193,8 +194,8 @@ void NEATPlayer::Update(const float &dt)
 				if (validMove(getPosition() + Vector2f(100 * dt, 0)))
 				{
 					move(100 * dt, 0);
-					if(delay_right<=0)
-					distance_walked += 100 * dt;
+					if (delay_right <= 0)
+						distance_walked += 100 * dt;
 				}
 				delay_left = 0.5f;
 				delay_up = 0.5f;
@@ -209,8 +210,8 @@ void NEATPlayer::Update(const float &dt)
 				if (validMove(getPosition() + Vector2f(-100 * dt, 0)))
 				{
 					move(-100 * dt, 0);
-					if(delay_left<=0)
-					distance_walked += 100 * dt;
+					if (delay_left <= 0)
+						distance_walked += 100 * dt;
 				}
 				delay_right = 0.5f;
 				delay_up = 0.5f;
@@ -225,8 +226,8 @@ void NEATPlayer::Update(const float &dt)
 				if (validMove(getPosition() + Vector2f(0, -100 * dt)))
 				{
 					move(0, -100 * dt);
-					if(delay_up<=0)
-					distance_walked += 100 * dt;
+					if (delay_up <= 0)
+						distance_walked += 100 * dt;
 				}
 				delay_left = 0.5f;
 				delay_right = 0.5f;
@@ -241,8 +242,8 @@ void NEATPlayer::Update(const float &dt)
 				if (validMove(getPosition() + Vector2f(0, 100 * dt)))
 				{
 					move(0, 100 * dt);
-					if(delay_down<=0)
-					distance_walked += 100 * dt;
+					if (delay_down <= 0)
+						distance_walked += 100 * dt;
 				}
 				delay_left = 0.5f;
 				delay_up = 0.5f;
@@ -252,47 +253,53 @@ void NEATPlayer::Update(const float &dt)
 				face_y = 1.0f;
 				isMoving = true;
 			}
-		}
-		if (chosen_output_id == 5)
-		 {
-			
-			if(defendDelay<=0)
-				defending = true;
-		}
-		if (chosen_output_id == 4)
-		if(fireTime <= 0.0f)
-		{
 
-			for (auto p : m_vecEnemies)
+			if (chosen_output_id == 5)
 			{
-				if (p == this || !p->isAlive())
-					continue;
-				if (length((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin())- Vector2f(32.0f*face_x, 32.0f*face_y)) <= 32.0f)
-				{
-					if (!p->isDefending())
-					{
-						Vector2f push = normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
-						p->Push(push.x, push.y);
-						p->getHit(20.0f);
-						idle_time = 0.0f;
-						damage_done += 20.0f;
-						t_idle = 0.0f;
-						if (p->getHealth() <= 0)
-							addKill();
-					}
-					else
-					{
-						Vector2f push = 0.5f*normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
-						Push(-push.x, -push.y, false);
-						p->Push(push.x, push.y, false);
-						t_idle = 0.0f;
-					}
-					
-				}
-			}
-			isAttacking = true;
-			fireTime = 0.5f;
 
+				if (defendDelay <= 0)
+					defending = true;
+			}
+			if (chosen_output_id == 4)
+				if (fireTime <= 0.0f)
+				{
+
+					for (auto p : m_vecEnemies)
+					{
+						if (p == this || !p->isAlive())
+							continue;
+						if (length((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()) - Vector2f(32.0f*face_x, 32.0f*face_y)) <= 32.0f)
+						{
+							if (!p->isDefending())
+							{
+								Vector2f push = normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
+								p->Push(push.x, push.y);
+								p->getHit(20.0f);
+								idle_time = 0.0f;
+								damage_done += 20.0f;
+								t_idle = 0.0f;
+								if (p->getHealth() <= 0)
+								{
+									addKill();
+									setPosition(start_positon);
+									//health += 50;
+									//if (health > 100) health = 100;
+								}
+							}
+							else
+							{
+								Vector2f push = 0.5f*normalize((p->getPosition() - p->getOrigin()) - (getPosition() - getOrigin()));
+								Push(-push.x, -push.y, false);
+								p->Push(push.x, push.y, false);
+								t_idle = 0.0f;
+							}
+
+						}
+					}
+					isAttacking = true;
+					fireTime = 0.5f;
+
+				}
 		}
 		
 	}
@@ -304,7 +311,7 @@ void NEATPlayer::Update(const float &dt)
 void NEATPlayer::EndOfRunCalculations()
 {
 	//m_dFitness += time_alive + (kills*50.0f) - damage_taken + damage_done;
-	m_dFitness += (kills * 100.0f + (distance_walked)) / 100.0f;
+	m_dFitness += damage_done / 100.0f + distance_walked / 10000.0f;
 	f_last_fitness = m_dFitness;
 }
 void NEATPlayer::WorldTransform(vector<SPoint> &sweeper, double scale)
