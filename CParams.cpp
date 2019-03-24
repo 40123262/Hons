@@ -38,7 +38,6 @@ double CParams::dChanceAddRecurrentLink   = 0;
 double CParams::dMutationRate             = 0;
 double CParams::dMaxWeightPerturbation    = 0;
 double CParams::dProbabilityWeightReplaced= 0;
-
 double CParams::dActivationMutationRate   = 0;
 double CParams::dMaxActivationPerturbation= 0;
 
@@ -48,10 +47,11 @@ int CParams::iOldAgeThreshold             = 0;
 double CParams::dOldAgePenalty            = 0;
 double CParams::dCrossoverRate            = 0;
 int CParams::iMaxNumberOfSpecies          = 0;
-
+int CParams::iMapID						  = 0;
 bool CParams::bRender                     = 1;
-bool CParams::bLoad							= 1;
+bool CParams::bLoad		     				= 1;
 float CParams::fSpeedUp                     = 1;
+int CParams::iNumGenerations = 350;
 
 
 
@@ -69,7 +69,7 @@ bool CParams::LoadInParameters(char* szFileName)
   }
 
   //load in from the file
-  char ParamDescription[46];
+  char ParamDescription[47];
 
   grab >> ParamDescription;
   grab >> iFramesPerSecond;
@@ -135,7 +135,10 @@ bool CParams::LoadInParameters(char* szFileName)
   grab >> bRender;
   grab >> ParamDescription;
   grab >> bLoad;
-
+  grab >> ParamDescription;
+  grab >> iMapID;
+  grab >> ParamDescription;
+  grab >> iNumGenerations;
 
   return true;
 }

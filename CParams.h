@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------
 #include <windows.h>
 #include <fstream>
-
+#include <iostream>
 using namespace std;	
 
 
@@ -103,7 +103,7 @@ public:
   //node and that does not already have a recurrently looped connection 
   //to itself. See CGenome::AddLink()
   static int    iNumTrysToFindLoopedLink;
-
+  static int iNumGenerations;
   //the number of attempts made to find an old link to prevent chaining
   //in CGenome::AddNeuron
   static int    iNumTrysToFindOldLink;
@@ -135,13 +135,12 @@ public:
   //during fitness adjustment this is how much the fitnesses of 
   //young species are boosted (eg 1.2 is a 20% boost)
   static double dYoungFitnessBonus;
-
   //if the species are below this age their fitnesses are boosted
   static int    iYoungBonusAgeThreshhold;
   
   //number of population to survive each epoch. (0.2 = 20%)
   static double dSurvivalRate;
-
+  static int iMapID;
   //if the species is above this age their fitness gets penalized
   static int    iOldAgeThreshold;
 
@@ -180,13 +179,14 @@ public:
 
   bool Initialize()
   {
-    if(!LoadInParameters("params.ini"))
-    {
-      MessageBox(NULL, "Cannot find 'params.ini'", "Error", 0);
+		 if (!LoadInParameters("params.ini"))
+		  {
+			  MessageBox(NULL, "Cannot find 'params.ini'", "Error", 0);
 
-      return false;
-    }
-
+			  return false;
+		  }
+		  std::cout << "Params loaded!" << std::endl;
+	
     dPi     = 3.14159265358979;
     dHalfPi = dPi / 2;
     dTwoPi  = dPi * 2;
@@ -199,9 +199,75 @@ public:
     return true;
 
   }
+  bool Initialize2()
+  {
+	  if (!LoadInParameters("params2.ini"))
+	  {
+		  MessageBox(NULL, "Cannot find 'params.ini'", "Error", 0);
 
+		  return false;
+	  }
+	  std::cout << "Params loaded!" << std::endl;
+
+	  dPi = 3.14159265358979;
+	  dHalfPi = dPi / 2;
+	  dTwoPi = dPi * 2;
+
+	  dCollisionDist = (double)(iSweeperScale + 1) / dSensorRange;
+
+	  iNumInputs = (iNumSensors + iNumColSensors + 2);
+	  iNumOutputs = 6;
+
+	  return true;
+
+  }
+  bool Initialize3()
+  {
+	  if (!LoadInParameters("params3.ini"))
+	  {
+		  MessageBox(NULL, "Cannot find 'params.ini'", "Error", 0);
+
+		  return false;
+	  }
+	  std::cout << "Params loaded!" << std::endl;
+
+	  dPi = 3.14159265358979;
+	  dHalfPi = dPi / 2;
+	  dTwoPi = dPi * 2;
+
+	  dCollisionDist = (double)(iSweeperScale + 1) / dSensorRange;
+
+	  iNumInputs = (iNumSensors + iNumColSensors + 2);
+	  iNumOutputs = 6;
+
+	  return true;
+
+  }
+  bool Initialize4()
+  {
+	  if (!LoadInParameters("params4.ini"))
+	  {
+		  MessageBox(NULL, "Cannot find 'params.ini'", "Error", 0);
+
+		  return false;
+	  }
+	  std::cout << "Params loaded!" << std::endl;
+
+	  dPi = 3.14159265358979;
+	  dHalfPi = dPi / 2;
+	  dTwoPi = dPi * 2;
+
+	  dCollisionDist = (double)(iSweeperScale + 1) / dSensorRange;
+
+	  iNumInputs = (iNumSensors + iNumColSensors + 2);
+	  iNumOutputs = 6;
+
+	  return true;
+
+  }
   bool LoadInParameters(char* szFileName);
 };
+
 
 
 

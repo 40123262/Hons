@@ -49,7 +49,7 @@ private:
   vector<NEATPlayer*> m_vecBestPlayers;
 
 	int					         m_NumSweepers;
-
+	bool bExperimentComplete = false;
 	//vertex buffer for the sweeper shapes vertices
 	vector<SPoint>		   m_SweeperVB;
 
@@ -115,7 +115,7 @@ public:
 	~CController();
 	sf::Vector2f pickSpawn(int id, int cycle);
 	void		Render(HDC &surface);
-
+	bool isExperimentComplete() { return bExperimentComplete; }
   //renders the phenotypes of the four best performers from
   //the previous generation
   void    RenderNetworks(RenderWindow &window);

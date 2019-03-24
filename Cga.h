@@ -63,7 +63,7 @@ private:
 
 	//current generation
   int               m_iGeneration;
-
+  char buffer[80];
 	int               m_iNextGenomeID;
 
   int               m_iNextSpeciesID;

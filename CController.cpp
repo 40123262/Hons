@@ -12,7 +12,7 @@ bool show_sensors = false;
 float show_sensors_delay = 0.0f;
 float avg_fit = 0.0f;
 float best_fitness = 0.0f;
-ofstream data_output("fitness.csv", std::ofstream::out);
+ofstream data_output;
 //these hold the geometry of the sweepers and the mines
 
 //---------------------------------------constructor---------------------
@@ -29,9 +29,15 @@ CController::CController(int  cxClient,
 											m_iGenerations(0),
                                          m_cxClient(cxClient),
                                          m_cyClient(cyClient),
-                                         m_iViewThisSweeper(0)
+                                         m_iViewThisSweeper(0),
+										bExperimentComplete(false)
 {
-  
+	time_t t = time(0);   // get time now
+	struct tm * now = localtime(&t);
+	char buffer[80];
+	std::strftime(buffer, 80, "fitness/%F--%H-%M-%S .csv",  now);
+	data_output.open(buffer);
+
 	//let's create the mine sweepers
 	auto spawns = ls::findTiles(ls::START);
 	spawns_mult.push_back(ls::findTiles(ls::ENEMY0));
@@ -86,19 +92,7 @@ CController::CController(int  cxClient,
     m_vecPlayers[i]->InsertNewBrain(pBrains[i]);
   }
 
-	//create a pen for the graph drawing
-	m_BluePen        = CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
-	m_RedPen         = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
-	m_GreenPen       = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
-  m_GreyPenDotted  = CreatePen(PS_DOT, 1, RGB(100, 100, 100));
-  m_RedPenDotted   = CreatePen(PS_DOT, 1, RGB(200, 0, 0));
-
-	m_OldPen	= NULL;
-
-  //and the brushes
-  m_BlueBrush = CreateSolidBrush(RGB(0,0,244));
-  m_RedBrush  = CreateSolidBrush(RGB(150,0,0));
-
+	
 	
 }
 
@@ -107,19 +101,26 @@ CController::CController(int  cxClient,
 //--------------------------------------------------------------------------------------
 CController::~CController()
 {
+	data_output.close();
   if (m_pPop)
   {
     delete m_pPop;
   }
-  
-	DeleteObject(m_BluePen);
-	DeleteObject(m_RedPen);
-	DeleteObject(m_GreenPen);
-	DeleteObject(m_OldPen);
-  DeleteObject(m_GreyPenDotted);
-  DeleteObject(m_RedPenDotted);
-  DeleteObject(m_BlueBrush);
-  DeleteObject(m_RedBrush);
+  for (auto m : m_vecPlayers)
+  {
+	  m->Die();
+  }
+  m_vecPlayers.clear();
+  for (auto m : m_vecEnemies)
+  {
+	  m->Die();
+  }
+  m_vecEnemies.clear();
+  for (auto m : m_vecBestPlayers)
+  {
+	  m->Die();
+  }
+  m_vecBestPlayers.clear();
 }
 
 sf::Vector2f CController::pickSpawn(int id, int cycle)
@@ -136,7 +137,12 @@ bool CController::Update(const float &dt)
 {
 	//run the sweepers through NUM_TICKS amount of cycles. During this loop each
 	//sweepers NN is constantly updated with the appropriate information from its 
-	//surroundings. The output from the NN is obtained and the sweeper is moved. 
+	//surroundings. The output from the NN is obtained and the sweeper is moved.
+
+	if (m_iGenerations > CParams::iNumGenerations)
+	{
+		bExperimentComplete = true;
+	}
 	m_iTicks += dt/CParams::fSpeedUp;
 	if (!lock_keys && show_sensors_delay <= 0 && Keyboard::isKeyPressed(Keyboard::U))
 	{

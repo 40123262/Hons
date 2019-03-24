@@ -5,6 +5,7 @@ int best_id = 0;
 //	this constructor creates a base genome from supplied values and creates 
 //	a population of 'size' similar (same topology, varying weights) genomes
 //-------------------------------------------------------------------------
+
 Cga::Cga(int  size,
          int  inputs,
          int  outputs):m_iPopSize(size),
@@ -32,6 +33,11 @@ Cga::Cga(int  size,
 
   //create the network depth lookup table
   vecSplits = Split(0, 1, 0);
+
+  time_t t = time(0);   // get time now
+  struct tm * now = localtime(&t);
+
+  std::strftime(buffer, 80, "saved/genome - %F--%H-%M-%S .txt", now);
 }
 Cga::Cga(int  size,
 	int  inputs,
@@ -63,6 +69,10 @@ Cga::Cga(int  size,
 	}
 	//create the network depth lookup table
 	vecSplits = Split(0, 1, 0);
+	time_t t = time(0);   // get time now
+	struct tm * now = localtime(&t);
+
+	std::strftime(buffer, 80, "saved/genome - %F--%H-%M-%S .txt", now);
 }
 
 
@@ -310,13 +320,13 @@ vector<CNeuralNet*> Cga::Epoch(const vector<double> &FitnessScores)
  // SpeciesDump("dbg_SpeciesDump.txt");
 
   /* uncomment the following if you want to output the innovation info to a filename */
-	 m_pInnovation->Write("saved/dbg_Innovations.txt", m_iGeneration);
+	// m_pInnovation->Write("saved/dbg_Innovations.txt", m_iGeneration);
 
 
   /* uncomment the following if you want to output the best genome this generation
      to a filename */
 
-  WriteGenome("saved/dbg_BestGenome.txt", m_iFittestGenome);
+  WriteGenome(buffer, m_iFittestGenome);
  
 
 

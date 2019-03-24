@@ -24,6 +24,7 @@ using namespace std;
 CController*	g_pController = NULL;
 bool lock_keys = false;
 CParams   g_Params;
+int iExperimentID = 0;
 sf::View camera;
 //global handle to the info window
 HWND g_hwndInfo = NULL;
@@ -56,7 +57,35 @@ void Load()
 	if (!font.loadFromFile("res/fonts/font.ttf")) {
 		cout << "Cannot load font!" << endl;
 	}
-	ls::loadLevelFile("res/levels/stripe.txt", 32.0f , ceil(CParams::iPopSize/4), 1);
+	switch (CParams::iMapID)
+	{
+	case 0:
+		ls::loadLevelFile("res/levels/stripe.txt", 32.0f, ceil(CParams::iPopSize / 4), 1);
+		break;
+	case 1:
+		ls::loadLevelFile("res/levels/mirror_stripe.txt", 32.0f, ceil(CParams::iPopSize / 4), 1);
+		break;
+	case 2:
+		ls::loadLevelFile("res/levels/double_stripe.txt", 32.0f, ceil(CParams::iPopSize / 4), 1);
+		break;
+	case 3:
+		ls::loadLevelFile("res/levels/double_stripe2.txt", 32.0f, ceil(CParams::iPopSize / 4), 1);
+		break;
+	case 4:
+		ls::loadLevelFile("res/levels/double_stripe3.txt", 32.0f, ceil(CParams::iPopSize / 4), 1);
+		break;
+	case 5:
+		ls::loadLevelFile("res/levels/double_stripe4.txt", 32.0f, ceil(CParams::iPopSize / 4), 1);
+		break;
+	case 6:
+		ls::loadLevelFile("res/levels/double_stripe5.txt", 32.0f, ceil(CParams::iPopSize / 4), 1);
+		break;
+	case 7:
+		ls::loadLevelFile("res/levels/double_stripe7.txt", 32.0f, ceil(CParams::iPopSize / 4), 1);
+		break;
+	default:
+		break;
+	}
 
 	//setup the controller
 	g_pController = new CController(1280, 720);
@@ -67,10 +96,36 @@ void Load()
 
 void Update(RenderWindow &window)
 {
+	if (g_pController->isExperimentComplete())
+	{
+		g_pController->~CController();
+		if (iExperimentID == 0)
+		{
+			g_Params.Initialize2();
+			iExperimentID++;
+		}
+		else if (iExperimentID == 1)
+		{
+			g_Params.Initialize3();
+			iExperimentID++;
+		}
+		else if (iExperimentID == 2)
+		{
+			g_Params.Initialize4();
+			iExperimentID++;
+		}
+		else if (iExperimentID == 3)
+		{
+			window.close();
+		}
+		g_pController= new CController(1280, 720);
+
+	}
 	static Clock clock;
-	float dt = clock.restart().asSeconds() * CParams::fSpeedUp;
+	float dt = clock.restart().asSeconds();
 	idle_time += dt;
 	key_delay -= dt;
+	 dt *= CParams::fSpeedUp;
 	Event event;	
 	while (window.pollEvent(event))
 	{
@@ -153,11 +208,12 @@ void RenderPhenotypes(RenderWindow &window)
 }
 int main()
 {
+
 	FreeConsole();
 	camera.setCenter(cam_pos); //in constructor
 	camera.setSize(gameWidth, gameHeight); //in constructor
-	RenderWindow window(VideoMode(gameWidth, gameHeight), "NEAT", sf::Style::Titlebar);
-	//RenderWindow phenotypes(VideoMode(gameWidth, gameHeight), "Best phenotypes", sf::Style::Titlebar);
+	RenderWindow window(VideoMode(gameWidth, gameHeight), "NEAT");
+//	RenderWindow phenotypes(VideoMode(gameWidth, gameHeight), "Best phenotypes", sf::Style::Titlebar);
 	window.setView(camera);
 	Load();
 	while (window.isOpen())

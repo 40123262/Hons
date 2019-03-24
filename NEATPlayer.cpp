@@ -281,7 +281,7 @@ void NEATPlayer::Update(const float &dt)
 								if (p->getHealth() <= 0)
 								{
 									addKill();
-									setPosition(start_positon);
+								//	setPosition(start_positon);
 									//health += 50;
 									//if (health > 100) health = 100;
 								}
